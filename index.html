@@ -50,7 +50,7 @@
         .diff-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 8px; max-height: 280px; overflow-y: auto; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
         .diff-item { padding: 12px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
         .diff-item.match { background: #ecfdf5; border-color: #10b981; color: #065f46; }
-        .diff-item.diff { background: #fff7ed; border-color: #f97316; color: #9a3412; } /* لون مميز لإجابة الطالب الخاطئة */
+        .diff-item.diff { background: #fff7ed; border-color: #f97316; color: #9a3412; } /* لون مميز وواضح لإجابة الطالب الخاطئة */
 
         .ai-helper-box { background: #f0fdf4; border: 1px solid #10b981; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         .ai-btn { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s; display: inline-block; text-decoration: none; text-align: center; }
@@ -152,6 +152,7 @@
     let studentAnswersState = {};
     let currentModelKey = 'modelA';
 
+    // تعريف النماذج الخمسة كاملة بنصوص الأسئلة والخيارات والمفاتيح الصحيحة المستخرجة بدقة[cite: 8, 9, 10, 15, 16]
     const modelsData = {
         modelA: {
             name: "نموذج أ",
@@ -221,4 +222,328 @@
                 { q: "13. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
                 { q: "14. الفعل المضارع المجزوم بـ (لم) بالسكون الصحيح هو:", options: { A: "لم يسعَ", B: "لم يكتبْ", C: "لم يدعُ", D: "لم يقضِ" }, ans: "B" },
                 { q: "15. الفعل \"يدعو\" في جملة \"لم يدعُ المسلمُ إلا اللهَ\" مجزوم وعلامة جزمه:", options: { A: "السكون", B: "حذف حرف العلة (الواو)", C: "حذف النون", D: "الفتحة المقدرة" }, ans: "B" },
-                { q: "16. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\
+                { q: "16. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
+                { q: "17. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "يكتبُ الطالبُ", C: "لم يكتبْ", D: "يكتبون بجد" }, ans: "B" },
+                { q: "18. الجملة المبنية للمعلوم فيما يلي هي:", options: { A: "كُتِبَ الدرسُ", B: "فُتِحَ البابُ", C: "حفظَ الطالبُ الدرسَ", D: "كُوفِئَ المجتهدُ" }, ans: "C" },
+                { q: "19. من الأفعال الخمسة المرفوعة بثبوت النون:", options: { A: "لن يدرسوا", B: "لم يدرسوا", C: "يدرسون", D: "ادرسوا" }, ans: "C" },
+                { q: "20. \"كان وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "تنصب المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "B" }
+            ]
+        },
+        modelD: {
+            name: "نموذج 4 (د)",
+            questions: [
+                { q: "1. الفاعل في جملة \"قرأَ الطالبُ الكتابَ\" هو:", options: { A: "قرأَ", B: "الكتابَ", C: "الطالبُ", D: "ضمير مستتر" }, ans: "C" },
+                { q: "2. الجملة المشتملة على حرف ناسخ هي:", options: { A: "أصبح الجوُّ جميلاً", B: "كان الطالبُ نشيطاً", C: "إنَّ العلمَ نورٌ", D: "صار الماءُ ثلجاً" }, ans: "C" },
+                { q: "3. علامة جزم الفعل المضارع معتل الآخر بـ (لم) هي:", options: { A: "ثبوت النون", B: "السكون الظاهر", C: "حذف حرف العلة", D: "الفتحة المقدرة" }, ans: "C" },
+                { q: "4. الجملة المبنية للمجهول بشكل صحيح هي:", options: { A: "شَرَحَ المعلمُ الدرسَ", B: "شُرِحَ الدرسُ", C: "يُشْرَحُ المعلمُ", D: "شُرِحَ الدرسَ" }, ans: "B" },
+                { q: "5. الفعل المضارع \"ينجحَ\" في جملة \"اجتهدْ كي تنجحَ\" هو:", options: { A: "مرفوع بالضمة", B: "منصوب وعلامة نصبه الفتحة", C: "مجزوم بالسكون", D: "مبني على الفتح" }, ans: "B" },
+                { q: "6. إعراب كلمة \"مجتهدٌ\" في جملة \"الطالبُ مجتهدٌ\":", options: { A: "مبتدأ مؤخر", B: "خبر مفرد مرفوع بالضمة", C: "فاعل مرفوع بالضمة", D: "مفعول به منصوب" }, ans: "B" },
+                { q: "7. أي الأداة التالية تجزم الفعل المضارع؟", options: { A: "كي", B: "لن", C: "لعلّ", D: "لم" }, ans: "D" },
+                { q: "8. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "منصوب بالفتحة", B: "مجزوم بحذف النون", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "B" },
+                { q: "9. الأداة \"لن\" تؤثر في الفعل المضارع بـ:", options: { A: "الجزم", B: "النصب", C: "الرفع", D: "الجر" }, ans: "B" },
+                { q: "10. عند بناء الفعل \"كَتَبَ\" للمجهول يطابق الضبط فيصبح:", options: { A: "يُكْتَبُ", B: "كُتِبَ", C: "كَاتَبَ", D: "أُكْتِبَ" }, ans: "B" },
+                { q: "11. جملة \"كان الطالبُ نشيطاً\"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "حال منصوبة", C: "خبر كان منصوب بالفتحة", D: "مفعول به" }, ans: "C" },
+                { q: "12. نائب الفاعل في جملة \"كُوفِئَ المتفوقُ\" مرفوع وعلامة رفعه:", options: { A: "الفتحة", B: "الضمة الظاهرة", C: "الألف", D: "ثبوت النون" }, ans: "B" },
+                { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
+                { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
+                { q: "15. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
+                { q: "16. الفعل \"يدعو\" في جملة \"لم يدعُ المسلمُ إلا اللهَ\" مجزوم وعلامة جزمه:", options: { A: "السكون", B: "حذف حرف العلة (الواو)", C: "حذف النون", D: "الفتحة المقدرة" }, ans: "B" },
+                { q: "17. من الأفعال الخمسة المرفوعة بثبوت النون:", options: { A: "يدرسون", B: "لن يدرسوا", C: "لم يدرسوا", D: "ادرسوا" }, ans: "A" },
+                { q: "18. الفعل المضارع المجزوم بـ (لم) بالسكون الصحيح هو:", options: { A: "لم يسعَ", B: "لم يكتبْ", C: "لم يدعُ", D: "لم يقضِ" }, ans: "B" },
+                { q: "19. الجملة المبنية للمعلوم فيما يلي هي:", options: { A: "كُتِبَ الدرسُ", B: "فُتِحَ البابُ", C: "حفظَ الطالبُ الدرسَ", D: "كُوفِئَ المجتهدُ" }, ans: "C" },
+                { q: "20. \"كان وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "تنصب المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "B" }
+            ]
+        },
+        modelE: {
+            name: "نموذج 5 (هـ)",
+            questions: [
+                { q: "1. الجملة المشتملة على حرف ناسخ هي:", options: { A: "أصبح الجوُّ جميلاً", B: "صار الماءُ ثلجاً", C: "إنَّ العلمَ نورٌ", D: "كان الطالبُ نشيطاً" }, ans: "C" },
+                { q: "2. الفاعل في جملة \"قرأَ الطالبُ الكتابَ\" هو:", options: { A: "الكتابَ", B: "قرأَ", C: "الطالبُ", D: "ضمير مستتر" }, ans: "C" },
+                { q: "3. علامة جزم الفعل المضارع معتل الآخر بـ (لم) هي:", options: { A: "ثبوت النون", B: "حذف حرف العلة", C: "السكون الظاهر", D: "الفتحة المقدرة" }, ans: "B" },
+                { q: "4. الجملة المبنية للمجهول بشكل صحيح هي:", options: { A: "شَرَحَ المعلمُ الدرسَ", B: "شُرِحَ الدرسُ", C: "يُشْرَحُ المعلمُ", D: "شُرِحَ الدرسَ" }, ans: "B" },
+                { q: "5. إعراب كلمة \"مجتهدٌ\" في جملة \"الطالبُ مجتهدٌ\":", options: { A: "مبتدأ مؤخر", B: "خبر مفرد مرفوع بالضمة", C: "فاعل مرفوع بالضمة", D: "مفعول به منصوب" }, ans: "B" },
+                { q: "6. الفعل المضارع \"ينجحَ\" في جملة \"اجتهدْ كي تنجحَ\" هو:", options: { A: "مرفوع بالضمة", B: "منصوب وعلامة نصبه الفتحة", C: "مبني على الفتح", D: "مجزوم بالسكون" }, ans: "B" },
+                { q: "7. أي الأداة التالية تجزم الفعل المضارع؟", options: { A: "لن", B: "كي", C: "لم", D: "لعلّ" }, ans: "C" },
+                { q: "8. نائب الفاعل في جملة \"كُوفِئَ المتفوقُ\" مرفوع وعلامة رفعه:", options: { A: "الفتحة", B: "الضمة الظاهرة", C: "الألف", D: "ثبوت النون" }, ans: "B" },
+                { q: "9. الأداة \"لن\" تؤثر في الفعل المضارع بـ:", options: { A: "الجزم", B: "النصب", C: "الرفع", D: "الجر" }, ans: "B" },
+                { q: "10. عند بناء الفعل \"كَتَبَ\" للمجهول يطابق الضبط فيصبح:", options: { A: "كُتِبَ", B: "يُكْتَبُ", C: "كَاتَبَ", D: "أُكْتِبَ" }, ans: "A" },
+                { q: "11. جملة \"كان الطالبُ نشيطاً\"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "خبر كان منصوب بالفتحة", C: "حال منصوبة", D: "مفعول به" }, ans: "B" },
+                { q: "12. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "مجزوم بحذف النون", B: "منصوب بالفتحة", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "A" },
+                { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
+                { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
+                { q: "15. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
+                { q: "16. الفعل \"يدعو\" في جملة \"لم يدعُ المسلمُ إلا اللهَ\" مجزوم وعلامة جزمه:", options: { A: "السكون", B: "حذف حرف العلة (الواو)", C: "حذف النون", D: "الفتحة المقدرة" }, ans: "B" },
+                { q: "17. من الأفعال الخمسة المرفوعة بثبوت النون:", options: { A: "يدرسون", B: "لن يدرسوا", C: "لم يدرسوا", D: "ادرسوا" }, ans: "A" },
+                { q: "18. الفعل المضارع المجزوم بـ (لم) بالسكون الصحيح هو:", options: { A: "لم يسعَ", B: "لم يكتبْ", C: "لم يدعُ", D: "لم يقضِ" }, ans: "B" },
+                { q: "19. الجملة المبنية للمعلوم فيما يلي هي:", options: { A: "كُتِبَ الدرسُ", B: "فُتِحَ البابُ", C: "حفظَ الطالبُ الدرسَ", D: "كُوفِئَ المجتهدُ" }, ans: "C" },
+                { q: "20. \"كان وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "تنصب المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "B" }
+            ]
+        }
+    };
+
+    window.onload = function() {
+        for (let i = 1; i <= 20; i++) {
+            studentAnswersState[i] = 'A';
+        }
+        buildStudentAnswersGrid();
+        buildModelKeyGrid();
+        loadAllowedStudents();
+        updateComparison();
+    };
+
+    function switchModel(modelKey) {
+        currentModelKey = modelKey;
+        buildModelKeyGrid();
+        updateComparison();
+    }
+
+    function buildStudentAnswersGrid() {
+        const container = document.getElementById('studentAnswersContainer');
+        container.innerHTML = '';
+        const keys = ['A', 'B', 'C', 'D'];
+        const labels = {'A':'أ', 'B':'ب', 'C':'ج', 'D':'د'};
+
+        for (let i = 1; i <= 20; i++) {
+            let currentVal = studentAnswersState[i];
+            let optHtml = '';
+            keys.forEach(k => {
+                let activeClass = (currentVal === k) ? 'opt-btn active' : 'opt-btn';
+                optHtml += `<button type="button" class="${activeClass}" onclick="setStudentAns(${i}, '${k}')">${labels[k]}</button>`;
+            });
+
+            container.innerHTML += `
+                <div class="ans-card">
+                    <span>س ${i}</span>
+                    <div class="options-group" id="q_opts_${i}">
+                        ${optHtml}
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function buildModelKeyGrid() {
+        const container = document.getElementById('modelKeyContainer');
+        container.innerHTML = '';
+        const keys = ['A', 'B', 'C', 'D'];
+        const labels = {'A':'أ', 'B':'ب', 'C':'ج', 'D':'د'};
+        const currentQuestions = modelsData[currentModelKey].questions;
+
+        for (let i = 1; i <= 20; i++) {
+            let correctVal = currentQuestions[i-1].ans;
+            let optHtml = '';
+            keys.forEach(k => {
+                let activeClass = (correctVal === k) ? 'opt-btn model-btn active' : 'opt-btn model-btn';
+                optHtml += `<button type="button" class="${activeClass}" disabled>${labels[k]}</button>`;
+            });
+
+            container.innerHTML += `
+                <div class="ans-card" style="background:#ecfdf5;">
+                    <span>س ${i}</span>
+                    <div class="options-group">
+                        ${optHtml}
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function setStudentAns(qNum, ansKey) {
+        studentAnswersState[qNum] = ansKey;
+        updateStudentButtonUI(qNum, ansKey);
+        updateComparison();
+    }
+
+    function updateStudentButtonUI(qNum, ansKey) {
+        const container = document.getElementById(`q_opts_${qNum}`);
+        if (!container) return;
+        const buttons = container.getElementsByTagName('button');
+        const keys = ['A', 'B', 'C', 'D'];
+        
+        for(let j=0; j<buttons.length; j++) {
+            if(keys[j] === ansKey) {
+                buttons[j].className = 'opt-btn active';
+            } else {
+                buttons[j].className = 'opt-btn';
+            }
+        }
+    }
+
+    function applyQuickPaste() {
+        let text = document.getElementById('quickPasteInput').value.trim();
+        let chars = text.replace(/[^أبجدهABCDabcd]/g, '').toUpperCase();
+        const mapArabToEng = {'أ': 'A', 'ب': 'B', 'ج': 'C', 'د': 'D'};
+        
+        let index = 0;
+        for (let i = 1; i <= 20; i++) {
+            if (index < chars.length) {
+                let ch = chars[index];
+                let engKey = mapArabToEng[ch] || ch;
+                if (['A', 'B', 'C', 'D'].includes(engKey)) {
+                    studentAnswersState[i] = engKey;
+                    updateStudentButtonUI(i, engKey);
+                }
+                index++;
+            }
+        }
+        updateComparison();
+    }
+
+    function clearQuickPaste() {
+        document.getElementById('quickPasteInput').value = '';
+        for (let i = 1; i <= 20; i++) {
+            studentAnswersState[i] = 'A';
+            updateStudentButtonUI(i, 'A');
+        }
+        updateComparison();
+    }
+
+    function updateComparison() {
+        const diffContainer = document.getElementById('diffGridContainer');
+        diffContainer.innerHTML = '';
+
+        let score = 0;
+        const currentQuestions = modelsData[currentModelKey].questions;
+        const labelsMap = {'A':'أ', 'B':'ب', 'C':'ج', 'D':'د'};
+
+        for (let i = 1; i <= 20; i++) {
+            const studentKey = studentAnswersState[i];
+            const qData = currentQuestions[i-1];
+            const correctKey = qData.ans;
+            const isMatch = (studentKey === correctKey);
+
+            if (isMatch) score++;
+
+            let studentText = qData.options[studentKey] || studentKey;
+            let correctText = qData.options[correctKey] || correctKey;
+
+            const itemClass = isMatch ? 'diff-item match' : 'diff-item diff';
+            const statusText = isMatch ? '🟢 إجابة صحيحة' : '🔴 إجابة خاطئة';
+
+            diffContainer.innerHTML += `
+                <div class="${itemClass}">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                        <span>${qData.q}</span>
+                        <span>${statusText}</span>
+                    </div>
+                    <div style="font-size:0.85rem;">
+                        👤 <strong style="${isMatch ? '' : 'color: #c2410c;'}">إجابة الطالب:</strong> (${labelsMap[studentKey]}) ${studentText}
+                    </div>
+                    <div style="font-size:0.85rem;">
+                        ✅ <strong style="color: #047857;">الجواب الصحيح:</strong> (${labelsMap[correctKey]}) ${correctText}
+                    </div>
+                </div>
+            `;
+        }
+
+        let percentage = Math.round((score / 20) * 100);
+        document.getElementById('liveScoreDisplay').innerText = `${score} من 20 (${percentage}%)`;
+    }
+
+    function loadAllowedStudents() {
+        db.collection("allowed_students").orderBy("name").get().then((snapshot) => {
+            allStudents = [];
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                if(data.name) allStudents.push(data.name);
+            });
+            renderStudentDropdown(allStudents);
+        });
+    }
+
+    function renderStudentDropdown(studentsArray) {
+        const listDiv = document.getElementById('studentDropdownList');
+        listDiv.innerHTML = '';
+        if (studentsArray.length === 0) {
+            listDiv.innerHTML = '<div class="student-item" style="color:#999;">لا توجد نتائج مطابقة</div>';
+            return;
+        }
+        studentsArray.forEach(name => {
+            const item = document.createElement('div');
+            item.className = 'student-item';
+            item.innerText = name;
+            item.onclick = function() {
+                document.getElementById('studentSearchInput').value = name;
+                listDiv.style.display = 'none';
+            };
+            listDiv.appendChild(item);
+        });
+    }
+
+    function showDropdown() {
+        document.getElementById('studentDropdownList').style.display = 'block';
+    }
+
+    function filterStudents() {
+        const query = document.getElementById('studentSearchInput').value.trim().toLowerCase();
+        const filtered = allStudents.filter(name => name.toLowerCase().includes(query));
+        renderStudentDropdown(filtered);
+        document.getElementById('studentDropdownList').style.display = 'block';
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.student-select-box')) {
+            document.getElementById('studentDropdownList').style.display = 'none';
+        }
+    });
+
+    async function processAndSendToDashboard() {
+        const studentName = document.getElementById('studentSearchInput').value.trim();
+        const customModelName = modelsData[currentModelKey].name;
+
+        if (!studentName) {
+            alert('الرجاء اختيار اسم الطالب من القائمة أولاً.');
+            return;
+        }
+
+        let answersDetails = [];
+        let score = 0;
+        const currentQuestions = modelsData[currentModelKey].questions;
+        const labelsMap = {'A':'أ', 'B':'ب', 'C':'ج', 'D':'د'};
+        
+        for (let i = 1; i <= 20; i++) {
+            let studentKey = studentAnswersState[i]; 
+            let qData = currentQuestions[i-1];
+            let correctKey = qData.ans; 
+            let isCorrect = (studentKey === correctKey);
+            if (isCorrect) score++;
+
+            let studentText = qData.options[studentKey] || studentKey;
+            let correctText = qData.options[correctKey] || correctKey;
+
+            answersDetails.push({
+                qText: qData.q,
+                studentAns: `(${labelsMap[studentKey]}) ${studentText}`,
+                correctAns: `(${labelsMap[correctKey]}) ${correctText}`,
+                isCorrect: isCorrect,
+                skill: i <= 4 ? 'est' : i <= 8 ? 'ikm' : i <= 12 ? 'swh' : i <= 16 ? 'arb' : 'sah'
+            });
+        }
+
+        let p = Math.round((score / 20) * 100);
+        let skillsObj = { est: p, ikm: p, swh: p, arb: p, sah: p, math: p };
+
+        let recordData = {
+            name: studentName,
+            score: score,
+            total: 20,
+            model_id: customModelName,
+            answers: answersDetails,
+            sections: skillsObj,
+            time: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            await db.collection("alkfaeat_results").add(recordData);
+            alert(`✅ تم اعتماد درجة الطالب (${studentName}) بنجاح تحت اسم (${customModelName})!\nالدرجة النهائية: ${score} من 20 (${p}%) وتم إرسال تفاصيل التغذية الراجعة لوحة التحكم.`);
+            
+            clearQuickPaste();
+            document.getElementById('studentSearchInput').value = '';
+        } catch (error) {
+            alert("حدث خطأ أثناء الإرسال لقاعدة البيانات.");
+        }
+    }
+</script>
+
+</body>
+</html>
