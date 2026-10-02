@@ -41,16 +41,20 @@
         /* أزرار خيارات الطالب ونموذج الإجابة (أ، ب، ج، د) */
         .options-group { display: flex; justify-content: center; gap: 3px; }
         .opt-btn { background: #f1f5f9; border: 1px solid var(--border); border-radius: 4px; padding: 3px 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; color: #334155; }
-        .opt-btn.active { background: #059669; color: white; border-color: #059669; }
         
-        /* أزرار نموذج الإجابة المعتمد بلون مميز */
+        /* لون اختيار الطالب الصحيح (أخضر) */
+        .opt-btn.active-correct { background: #059669 !important; color: white !important; border-color: #059669 !important; }
+        /* لون اختيار الطالب الخاطئ (برتقالي محمر مميز) */
+        .opt-btn.active-wrong { background: #f97316 !important; color: white !important; border-color: #f97316 !important; }
+        
+        /* أزرار نموذج الإجابة المعتمد الثابتة بلون أخضر داكن موحد */
         .model-btn.active { background: #047857 !important; color: white !important; border-color: #047857 !important; }
 
         /* لوحة التغذية الراجعة */
         .diff-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 8px; max-height: 280px; overflow-y: auto; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
         .diff-item { padding: 12px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
         .diff-item.match { background: #ecfdf5; border-color: #10b981; color: #065f46; }
-        .diff-item.diff { background: #fff7ed; border-color: #f97316; color: #9a3412; } /* لون مميز وواضح لإجابة الطالب الخاطئة */
+        .diff-item.diff { background: #fff7ed; border-color: #f97316; color: #9a3412; }
 
         .ai-helper-box { background: #f0fdf4; border: 1px solid #10b981; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         .ai-btn { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s; display: inline-block; text-decoration: none; text-align: center; }
@@ -106,7 +110,7 @@
 
     <!-- 4. تظليل إجابات الطالب اليدوية -->
     <div class="section-box" style="border-color: #10b981; background: #f0fdf4;">
-        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (للمراجعة أو التعديل الفردي):</label>
+        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (الإجابة الصحيحة بالخضراء والخاطئة بالبرتقالية المميزة):</label>
         <div class="grid-20" id="studentAnswersContainer"></div>
     </div>
 
@@ -152,7 +156,6 @@
     let studentAnswersState = {};
     let currentModelKey = 'modelA';
 
-    // تعريف النماذج الخمسة كاملة بنصوص الأسئلة والخيارات والمفاتيح الصحيحة المستخرجة بدقة[cite: 8, 9, 10, 15, 16]
     const modelsData = {
         modelA: {
             name: "نموذج أ",
@@ -242,7 +245,7 @@
                 { q: "8. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "منصوب بالفتحة", B: "مجزوم بحذف النون", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "B" },
                 { q: "9. الأداة \"لن\" تؤثر في الفعل المضارع بـ:", options: { A: "الجزم", B: "النصب", C: "الرفع", D: "الجر" }, ans: "B" },
                 { q: "10. عند بناء الفعل \"كَتَبَ\" للمجهول يطابق الضبط فيصبح:", options: { A: "يُكْتَبُ", B: "كُتِبَ", C: "كَاتَبَ", D: "أُكْتِبَ" }, ans: "B" },
-                { q: "11. جملة \"كان الطالبُ نشيطاً\"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "حال منصوبة", C: "خبر كان منصوب بالفتحة", D: "مفعول به" }, ans: "C" },
+                { q: "11. جملة \"كان الطالبُ نشيطاً"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "حال منصوبة", C: "خبر كان منصوب بالفتحة", D: "مفعول به" }, ans: "C" },
                 { q: "12. نائب الفاعل في جملة \"كُوفِئَ المتفوقُ\" مرفوع وعلامة رفعه:", options: { A: "الفتحة", B: "الضمة الظاهرة", C: "الألف", D: "ثبوت النون" }, ans: "B" },
                 { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
                 { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
@@ -267,7 +270,7 @@
                 { q: "8. نائب الفاعل في جملة \"كُوفِئَ المتفوقُ\" مرفوع وعلامة رفعه:", options: { A: "الفتحة", B: "الضمة الظاهرة", C: "الألف", D: "ثبوت النون" }, ans: "B" },
                 { q: "9. الأداة \"لن\" تؤثر في الفعل المضارع بـ:", options: { A: "الجزم", B: "النصب", C: "الرفع", D: "الجر" }, ans: "B" },
                 { q: "10. عند بناء الفعل \"كَتَبَ\" للمجهول يطابق الضبط فيصبح:", options: { A: "كُتِبَ", B: "يُكْتَبُ", C: "كَاتَبَ", D: "أُكْتِبَ" }, ans: "A" },
-                { q: "11. جملة \"كان الطالبُ نشيطاً\"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "خبر كان منصوب بالفتحة", C: "حال منصوبة", D: "مفعول به" }, ans: "B" },
+                { q: "11. جملة \"كان الطالبُ نشيطاً"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "خبر كان منصوب بالفتحة", C: "حال منصوبة", D: "مفعول به" }, ans: "B" },
                 { q: "12. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "مجزوم بحذف النون", B: "منصوب بالفتحة", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "A" },
                 { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
                 { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
@@ -302,12 +305,19 @@
         container.innerHTML = '';
         const keys = ['A', 'B', 'C', 'D'];
         const labels = {'A':'أ', 'B':'ب', 'C':'ج', 'D':'د'};
+        const currentQuestions = modelsData[currentModelKey].questions;
 
         for (let i = 1; i <= 20; i++) {
             let currentVal = studentAnswersState[i];
+            let correctVal = currentQuestions[i-1].ans;
             let optHtml = '';
+
             keys.forEach(k => {
-                let activeClass = (currentVal === k) ? 'opt-btn active' : 'opt-btn';
+                let activeClass = 'opt-btn';
+                if (currentVal === k) {
+                    // إذا تطابقت مع الإجابة الصحيحة تلون بالأخضر، وإذا أخطأ تلون بالبرتقالي المميز
+                    activeClass = (k === correctVal) ? 'opt-btn active-correct' : 'opt-btn active-wrong';
+                }
                 optHtml += `<button type="button" class="${activeClass}" onclick="setStudentAns(${i}, '${k}')">${labels[k]}</button>`;
             });
 
@@ -350,23 +360,8 @@
 
     function setStudentAns(qNum, ansKey) {
         studentAnswersState[qNum] = ansKey;
-        updateStudentButtonUI(qNum, ansKey);
+        buildStudentAnswersGrid(); // إعادة بناء شبكة إجابات الطالب لتحديث الألوان تلقائياً فوراً
         updateComparison();
-    }
-
-    function updateStudentButtonUI(qNum, ansKey) {
-        const container = document.getElementById(`q_opts_${qNum}`);
-        if (!container) return;
-        const buttons = container.getElementsByTagName('button');
-        const keys = ['A', 'B', 'C', 'D'];
-        
-        for(let j=0; j<buttons.length; j++) {
-            if(keys[j] === ansKey) {
-                buttons[j].className = 'opt-btn active';
-            } else {
-                buttons[j].className = 'opt-btn';
-            }
-        }
     }
 
     function applyQuickPaste() {
@@ -381,11 +376,11 @@
                 let engKey = mapArabToEng[ch] || ch;
                 if (['A', 'B', 'C', 'D'].includes(engKey)) {
                     studentAnswersState[i] = engKey;
-                    updateStudentButtonUI(i, engKey);
                 }
                 index++;
             }
         }
+        buildStudentAnswersGrid();
         updateComparison();
     }
 
@@ -393,8 +388,8 @@
         document.getElementById('quickPasteInput').value = '';
         for (let i = 1; i <= 20; i++) {
             studentAnswersState[i] = 'A';
-            updateStudentButtonUI(i, 'A');
         }
+        buildStudentAnswersGrid();
         updateComparison();
     }
 
