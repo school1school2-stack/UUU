@@ -45,7 +45,7 @@
         .options-group { display: flex; gap: 4px; }
         .opt-btn { background: #f1f5f9; border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; font-size: 0.8rem; font-weight: bold; cursor: pointer; color: #334155; }
         
-        /* ألوان التمييز لخيارات الطالب (تظهر فقط عند اللصق أو الاختيار) */
+        /* ألوان التمييز لخيارات الطالب */
         .opt-btn.active-correct { background: #059669 !important; color: white !important; border-color: #059669 !important; }
         .opt-btn.active-wrong { background: #f97316 !important; color: white !important; border-color: #f97316 !important; }
         
@@ -59,8 +59,6 @@
         .diff-item.diff { background: #fff7ed; border-color: #f97316; color: #9a3412; }
 
         .ai-helper-box { background: #f0fdf4; border: 1px solid #10b981; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .ai-btn { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s; display: inline-block; text-decoration: none; text-align: center; }
-        .ai-btn:hover { background: #059669; }
         
         .clear-btn { background: #ef4444; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
         .clear-btn:hover { background: #dc2626; }
@@ -97,23 +95,21 @@
         </div>
     </div>
 
-    <!-- 3. نافذة التعبئة الذكية السريعة -->
+    <!-- 3. نافذة التعبئة الذكية الفورية اللحظية -->
     <div class="ai-helper-box">
-        <label style="color: #047857; margin-bottom: 5px;">3️⃣ نافذة لصق إجابات الطالب الفورية (لصق سريع):</label>
+        <label style="color: #047857; margin-bottom: 5px;">3️⃣ خانة إدخال الإجابات الفورية (تتحدث لحظياً مع كل حرف):</label>
         <p style="font-size: 0.82rem; color: #065f46; margin-top: 0; margin-bottom: 10px;">
-            الصق الحروف هنا (من 1 إلى 20 متصلة) واضغط Enter أو زر التعبئة الفورية لتتلون الإجابات فوراً:
+            اكتب أو الصق الحروف هنا (مثال: أبتث...) وسترى التلوين والتقدم يحدث فوراً لكل سؤال:
         </p>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <input type="text" id="quickPasteInput" placeholder="الصق حروف الإجابات هنا (أ، ب، ج، د)..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem;" onkeydown="handleQuickKey(event)">
-            <button type="button" class="ai-btn" onclick="applyQuickPaste()">⚡ تعبئة فورية</button>
-            <button type="button" class="ai-btn" style="background: #0284c7;" onclick="pasteFromClipboard()">📋 لصق من الحافظة</button>
-            <button type="button" class="clear-btn" onclick="clearQuickPaste()">🗑️ تصفير</button>
+            <input type="text" id="quickPasteInput" placeholder="اكتب الحروف هنا لتتوزع لحظياً..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem;" oninput="applyInstantPaste()">
+            <button type="button" class="clear-btn" onclick="clearQuickPaste()">🗑️ تصفير الحقل</button>
         </div>
     </div>
 
-    <!-- 4. تظليل إجابات الطالب (بدون ألوان افتراضياً وتتلون عند اللصق) -->
+    <!-- 4. تظليل إجابات الطالب اللحظية -->
     <div class="section-box" style="border-color: #10b981; background: #f0fdf4;">
-        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (تظهر الألوان فور اللصق - نفس ترتيب ورقة الاختبار):</label>
+        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (تتحدث لحظياً حسب الإدخال - نفس ترتيب ورقة الاختبار):</label>
         <div class="grid-columns-container" id="studentAnswersContainer"></div>
     </div>
 
@@ -225,7 +221,7 @@
                 { q: "10. الأداة \"لن\" تؤثر في الفعل المضارع بـ:", options: { A: "النصب", B: "الجزم", C: "الرفع", D: "الجر" }, ans: "A" },
                 { q: "11. الفاعل في جملة \"قرأَ الطالبُ الكتابَ\" هو:", options: { A: "قرأَ", B: "الكتابَ", C: "الطالبُ", D: "ضمير مستتر" }, ans: "C" },
                 { q: "12. عند بناء الفعل \"كَتَبَ\" للمجهول يطابق الضبط فيصبح:", options: { A: "يُكْتَبُ", B: "كُتِبَ", C: "أُكْتِبَ", D: "كَاتَبَ" }, ans: "B" },
-                { q: "13. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
+                { q: "13. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "تنصب المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
                 { q: "14. الفعل المضارع المجزوم بـ (لم) بالسكون الصحيح هو:", options: { A: "لم يسعَ", B: "لم يكتبْ", C: "لم يدعُ", D: "لم يقضِ" }, ans: "B" },
                 { q: "15. الفعل \"يدعو\" في جملة \"لم يدعُ المسلمُ إلا اللهَ\" مجزوم وعلامة جزمه:", options: { A: "السكون", B: "حذف حرف العلة (الواو)", C: "حذف النون", D: "الفتحة المقدرة" }, ans: "B" },
                 { q: "16. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
@@ -276,7 +272,7 @@
                 { q: "11. جملة \"كان الطالبُ نشيطاً\"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "خبر كان منصوب بالفتحة", C: "حال منصوبة", D: "مفعول به" }, ans: "B" },
                 { q: "12. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "مجزوم بحذف النون", B: "منصوب بالفتحة", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "A" },
                 { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
-                { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
+                { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", C: "يكتبون بجد" }, ans: "C" },
                 { q: "15. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
                 { q: "16. الفعل \"يدعو\" في جملة \"لم يدعُ المسلمُ إلا اللهَ\" مجزوم وعلامة جزمه:", options: { A: "السكون", B: "حذف حرف العلة (الواو)", C: "حذف النون", D: "الفتحة المقدرة" }, ans: "B" },
                 { q: "17. من الأفعال الخمسة المرفوعة بثبوت النون:", options: { A: "يدرسون", B: "لن يدرسوا", C: "لم يدرسوا", D: "ادرسوا" }, ans: "A" },
@@ -289,7 +285,7 @@
 
     window.onload = function() {
         for (let i = 1; i <= 20; i++) {
-            studentAnswersState[i] = ''; // تبدأ فارغة بدون أي اختيار افتراضي
+            studentAnswersState[i] = '';
         }
         buildGrids();
         loadAllowedStudents();
@@ -326,7 +322,6 @@
             let currentVal = studentAnswersState[i];
             let correctVal = currentQuestions[i-1].ans;
             
-            // خيارات الطالب: تظهر ملونة فقط إذا تم تحديدها، وبدون لون إذا كانت فارغة
             let studentOptHtml = '';
             keys.forEach(k => {
                 let activeClass = 'opt-btn';
@@ -343,7 +338,6 @@
                 </div>
             `;
 
-            // خيارات النموذج المعتمد
             let modelOptHtml = '';
             keys.forEach(k => {
                 let activeClass = (correctVal === k) ? 'opt-btn model-btn active' : 'opt-btn model-btn';
@@ -381,42 +375,32 @@
         updateComparison();
     }
 
-    function handleQuickKey(event) {
-        if (event.key === 'Enter') {
-            applyQuickPaste();
+    // الدالة اللحظية التي تعمل مع كل حرف تكتبه أو تلصقه
+    function applyInstantPaste() {
+        let text = document.getElementById('quickPasteInput').value;
+        
+        // تنقية وتوحيد أنواع الألف (أ، إ، آ، ا) إلى حرف A وإبقاء ب، ج، د
+        let cleaned = '';
+        for (let i = 0; i < text.length; i++) {
+            let ch = text[i];
+            if (['أ', 'إ', 'آ', 'ا', 'A', 'a'].includes(ch)) {
+                cleaned += 'A';
+            } else if (['ب', 'B', 'b'].includes(ch)) {
+                cleaned += 'B';
+            } else if (['ج', 'C', 'c'].includes(ch)) {
+                cleaned += 'C';
+            } else if (['د', 'D', 'd'].includes(ch)) {
+                cleaned += 'D';
+            }
         }
-    }
-
-    function applyQuickPaste() {
-        let text = document.getElementById('quickPasteInput').value.trim();
-        processAndApplyText(text);
-    }
-
-    async function pasteFromClipboard() {
-        try {
-            let text = await navigator.clipboard.readText();
-            document.getElementById('quickPasteInput').value = text;
-            processAndApplyText(text);
-        } catch (err) {
-            alert("تعذر الوصول للحافظة تلقائياً، يرجى اللصق يدويًا داخل الخانة ثم الضغط على تعبئة.");
-        }
-    }
-
-    function processAndApplyText(text) {
-        let chars = text.replace(/[^أبجدهABCDabcd]/g, '').toUpperCase();
-        const mapArabToEng = {'أ': 'A', 'ب': 'B', 'ج': 'C', 'د': 'D'};
         
         let index = 0;
         for (let i = 1; i <= 20; i++) {
-            if (index < chars.length) {
-                let ch = chars[index];
-                let engKey = mapArabToEng[ch] || ch;
-                if (['A', 'B', 'C', 'D'].includes(engKey)) {
-                    studentAnswersState[i] = engKey;
-                }
+            if (index < cleaned.length) {
+                studentAnswersState[i] = cleaned[index];
                 index++;
             } else {
-                studentAnswersState[i] = '';
+                studentAnswersState[i] = ''; // تصفير الأسئلة التي لم تصلها بعد
             }
         }
         buildGrids();
@@ -445,7 +429,7 @@
             const qData = currentQuestions[i-1];
             const correctKey = qData.ans;
             
-            if (!studentKey) continue; // تخطي الأسئلة التي لم تُعبأ بعد في الحساب
+            if (!studentKey) continue; 
 
             const isMatch = (studentKey === correctKey);
             if (isMatch) score++;
