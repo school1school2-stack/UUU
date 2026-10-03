@@ -94,16 +94,17 @@
         </div>
     </div>
 
-    <!-- 3. نافذة التعبئة الذكية السريعة (اللصق لإجابات الطالب) -->
+    <!-- 3. نافذة التعبئة الذكية السريعة المحسنة -->
     <div class="ai-helper-box">
-        <label style="color: #047857; margin-bottom: 5px;">3️⃣ نافذة لصق إجابات الطالب الفورية:</label>
+        <label style="color: #047857; margin-bottom: 5px;">3️⃣ نافذة لصق إجابات الطالب الفورية (لصق سريع):</label>
         <p style="font-size: 0.82rem; color: #065f46; margin-top: 0; margin-bottom: 10px;">
-            الصق إجابات الطالب هنا (أ، ب، ج، د)، أو انقر على (تصفير الخانة) لمسحها:
+            الصق الحروف هنا (مثال: أأأأأأأأأدببببأبأبجب) واضغط Enter أو زر التعبئة الفورية:
         </p>
-        <div style="display: flex; gap: 8px;">
-            <input type="text" id="quickPasteInput" placeholder="الصق حروف الإجابات هنا (أ، ب، ج، د)..." style="flex: 1; padding: 8px; border: 1px solid #10b981; border-radius: 8px; font-size: 0.9rem;">
-            <button type="button" class="ai-btn" onclick="applyQuickPaste()">تعبئة فورية</button>
-            <button type="button" class="clear-btn" onclick="clearQuickPaste()">تصفير الخانة</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="quickPasteInput" placeholder="الصق حروف الإجابات هنا (أ، ب، ج، د)..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem;" onkeydown="handleQuickKey(event)">
+            <button type="button" class="ai-btn" onclick="applyQuickPaste()">⚡ تعبئة فورية</button>
+            <button type="button" class="ai-btn" style="background: #0284c7;" onclick="pasteFromClipboard()">📋 لصق من الحافظة</button>
+            <button type="button" class="clear-btn" onclick="clearQuickPaste()">🗑️ تصفير</button>
         </div>
     </div>
 
@@ -135,7 +136,7 @@
     <button class="submit-btn" onclick="processAndSendToDashboard()">6️⃣ اعتماد النتيجة وإرسالها لوحة التحكم</button>
 
     <div class="footer-note">
-        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓
+        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓[cite: 1]
     </div>
 </div>
 
@@ -363,8 +364,28 @@
         updateComparison();
     }
 
+    function handleQuickKey(event) {
+        if (event.key === 'Enter') {
+            applyQuickPaste();
+        }
+    }
+
     function applyQuickPaste() {
         let text = document.getElementById('quickPasteInput').value.trim();
+        processAndApplyText(text);
+    }
+
+    async function pasteFromClipboard() {
+        try {
+            let text = await navigator.clipboard.readText();
+            document.getElementById('quickPasteInput').value = text;
+            processAndApplyText(text);
+        } catch (err) {
+            alert("تعذر الوصول للحافظة تلقائياً، يجدر اللصق يدويًا داخل الخانة ثم الضغط على تعبئة.");
+        }
+    }
+
+    function processAndApplyText(text) {
         let chars = text.replace(/[^أبجدهABCDabcd]/g, '').toUpperCase();
         const mapArabToEng = {'أ': 'A', 'ب': 'B', 'ج': 'C', 'د': 'D'};
         
