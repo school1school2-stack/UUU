@@ -12,7 +12,7 @@
             --text-main: #1e293b; --text-sub: #64748b; --border: #e2e8f0;
         }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .scanner-container { max-width: 900px; width: 100%; background: var(--card-bg); border-radius: 20px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px dashed var(--accent); }
+        .scanner-container { max-width: 950px; width: 100%; background: var(--card-bg); border-radius: 20px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px dashed var(--accent); }
         h1 { color: var(--accent); font-size: 1.5rem; text-align: center; margin-top: 0; margin-bottom: 5px; }
         p.subtitle { text-align: center; color: var(--text-sub); font-size: 0.9rem; margin-bottom: 25px; }
         
@@ -32,17 +32,21 @@
         .score-card h2 { margin: 0; font-size: 1.8rem; }
         .score-card p { margin: 5px 0 0 0; font-size: 0.95rem; opacity: 0.9; }
 
-        /* أقسام العرض */
+        /* أقسام العرض بترتيب ورقة الاختبار (عمودين: اليمين 1-10، اليسار 11-20) */
         .section-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .grid-20 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .ans-card { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 6px; text-align: center; }
-        .ans-card span { font-size: 0.75rem; font-weight: bold; color: var(--accent); display: block; margin-bottom: 2px; }
+        
+        /* تصميم الشبكة ليتطابق مع ورقة الإجابة (5 صفوف في عمودين) */
+        .grid-columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .sub-column { display: flex; flex-direction: column; gap: 6px; }
+
+        .ans-card { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; }
+        .ans-card span { font-size: 0.85rem; font-weight: bold; color: var(--accent); }
         
         /* أزرار خيارات الطالب ونموذج الإجابة (أ، ب، ج، د) */
-        .options-group { display: flex; justify-content: center; gap: 3px; }
-        .opt-btn { background: #f1f5f9; border: 1px solid var(--border); border-radius: 4px; padding: 3px 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; color: #334155; }
+        .options-group { display: flex; gap: 4px; }
+        .opt-btn { background: #f1f5f9; border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; font-size: 0.8rem; font-weight: bold; cursor: pointer; color: #334155; }
         
-        /* ألوان التمييز الجديدة لخيارات الطالب */
+        /* ألوان التمييز لخيارات الطالب */
         .opt-btn.active-correct { background: #059669 !important; color: white !important; border-color: #059669 !important; }
         .opt-btn.active-wrong { background: #f97316 !important; color: white !important; border-color: #f97316 !important; }
         
@@ -94,11 +98,11 @@
         </div>
     </div>
 
-    <!-- 3. نافذة التعبئة الذكية السريعة المحسنة -->
+    <!-- 3. نافذة التعبئة الذكية السريعة -->
     <div class="ai-helper-box">
         <label style="color: #047857; margin-bottom: 5px;">3️⃣ نافذة لصق إجابات الطالب الفورية (لصق سريع):</label>
         <p style="font-size: 0.82rem; color: #065f46; margin-top: 0; margin-bottom: 10px;">
-            الصق الحروف هنا (مثال: أأأأأأأأأدببببأبأبجب) واضغط Enter أو زر التعبئة الفورية:
+            الصق الحروف هنا (من 1 إلى 20 متصلة) واضغط Enter أو زر التعبئة الفورية:
         </p>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <input type="text" id="quickPasteInput" placeholder="الصق حروف الإجابات هنا (أ، ب، ج، د)..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem;" onkeydown="handleQuickKey(event)">
@@ -108,16 +112,16 @@
         </div>
     </div>
 
-    <!-- 4. تظليل إجابات الطالب اليدوية -->
+    <!-- 4. تظليل إجابات الطالب (بنفس ترتيب أعمدة ورقة الاختبار) -->
     <div class="section-box" style="border-color: #10b981; background: #f0fdf4;">
-        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (الصحيحة بالخضراء والخاطئة بالبرتقالية المميزة):</label>
-        <div class="grid-20" id="studentAnswersContainer"></div>
+        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (نفس ترتيب ورقة الاختبار: اليمين 1-10، اليسار 11-20):</label>
+        <div class="grid-columns-container" id="studentAnswersContainer"></div>
     </div>
 
-    <!-- 5. مفاتيح الإجابة النموذجية المعتمدة للنموذج المختار -->
+    <!-- 5. مفاتيح الإجابة النموذجية المعتمدة (بنفس ترتيب الأعمدة) -->
     <div class="section-box" style="border-color: #059669; background: #ecfdf5;">
         <label style="color: #065f46; margin-bottom: 8px;">5️⃣ مفاتيح النموذج المعتمد الثابتة:</label>
-        <div class="grid-20" id="modelKeyContainer"></div>
+        <div class="grid-columns-container" id="modelKeyContainer"></div>
     </div>
 
     <!-- بطاقة عرض النتيجة الفورية -->
@@ -274,7 +278,7 @@
                 { q: "12. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "مجزوم بحذف النون", B: "منصوب بالفتحة", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "A" },
                 { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
                 { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
-                { q: "15. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
+                { q: "15. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "تنصب المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
                 { q: "16. الفعل \"يدعو\" في جملة \"لم يدعُ المسلمُ إلا اللهَ\" مجزوم وعلامة جزمه:", options: { A: "السكون", B: "حذف حرف العلة (الواو)", C: "حذف النون", D: "الفتحة المقدرة" }, ans: "B" },
                 { q: "17. من الأفعال الخمسة المرفوعة بثبوت النون:", options: { A: "يدرسون", B: "لن يدرسوا", C: "لم يدرسوا", D: "ادرسوا" }, ans: "A" },
                 { q: "18. الفعل المضارع المجزوم بـ (لم) بالسكون الصحيح هو:", options: { A: "لم يسعَ", B: "لم يكتبْ", C: "لم يدعُ", D: "لم يقضِ" }, ans: "B" },
@@ -288,79 +292,94 @@
         for (let i = 1; i <= 20; i++) {
             studentAnswersState[i] = 'A';
         }
-        buildStudentAnswersGrid();
-        buildModelKeyGrid();
+        buildGrids();
         loadAllowedStudents();
         updateComparison();
     };
 
     function switchModel(modelKey) {
         currentModelKey = modelKey;
-        buildModelKeyGrid();
-        buildStudentAnswersGrid();
+        buildGrids();
         updateComparison();
     }
 
-    function buildStudentAnswersGrid() {
-        const container = document.getElementById('studentAnswersContainer');
-        container.innerHTML = '';
+    // دالة بناء الشبكات بترتيب عمودين (اليمين 1-10، اليسار 11-20)
+    function buildGrids() {
+        const studentContainer = document.getElementById('studentAnswersContainer');
+        const modelContainer = document.getElementById('modelKeyContainer');
+        
+        studentContainer.innerHTML = '';
+        modelContainer.innerHTML = '';
+
         const keys = ['A', 'B', 'C', 'D'];
         const labels = {'A':'أ', 'B':'ب', 'C':'ج', 'D':'د'};
         const currentQuestions = modelsData[currentModelKey].questions;
 
+        // سنقوم بإنشاء عمودين: العمود الأيمن للأسئلة (1 إلى 10)، والعمود الأيسر للأسئلة (11 إلى 20)
+        let rightColStudent = '<div class="sub-column">';
+        let leftColStudent = '<div class="sub-column">';
+
+        let rightColModel = '<div class="sub-column">';
+        let leftColModel = '<div class="sub-column">';
+
         for (let i = 1; i <= 20; i++) {
             let currentVal = studentAnswersState[i];
             let correctVal = currentQuestions[i-1].ans;
-            let optHtml = '';
-
+            
+            // بناء خيارات الطالب
+            let studentOptHtml = '';
             keys.forEach(k => {
                 let activeClass = 'opt-btn';
                 if (currentVal === k) {
                     activeClass = (k === correctVal) ? 'opt-btn active-correct' : 'opt-btn active-wrong';
                 }
-                optHtml += `<button type="button" class="${activeClass}" onclick="setStudentAns(${i}, '${k}')">${labels[k]}</button>`;
+                studentOptHtml += `<button type="button" class="${activeClass}" onclick="setStudentAns(${i}, '${k}')">${labels[k]}</button>`;
             });
 
-            container.innerHTML += `
+            let studentCardHtml = `
                 <div class="ans-card">
                     <span>س ${i}</span>
-                    <div class="options-group" id="q_opts_${i}">
-                        ${optHtml}
-                    </div>
+                    <div class="options-group">${studentOptHtml}</div>
                 </div>
             `;
-        }
-    }
 
-    function buildModelKeyGrid() {
-        const container = document.getElementById('modelKeyContainer');
-        container.innerHTML = '';
-        const keys = ['A', 'B', 'C', 'D'];
-        const labels = {'A':'أ', 'B':'ب', 'C':'ج', 'D':'د'};
-        const currentQuestions = modelsData[currentModelKey].questions;
-
-        for (let i = 1; i <= 20; i++) {
-            let correctVal = currentQuestions[i-1].ans;
-            let optHtml = '';
+            // بناء خيارات النموذج المعتمد
+            let modelOptHtml = '';
             keys.forEach(k => {
                 let activeClass = (correctVal === k) ? 'opt-btn model-btn active' : 'opt-btn model-btn';
-                optHtml += `<button type="button" class="${activeClass}" disabled>${labels[k]}</button>`;
+                modelOptHtml += `<button type="button" class="${activeClass}" disabled>${labels[k]}</button>`;
             });
 
-            container.innerHTML += `
+            let modelCardHtml = `
                 <div class="ans-card" style="background:#ecfdf5;">
                     <span>س ${i}</span>
-                    <div class="options-group">
-                        ${optHtml}
-                    </div>
+                    <div class="options-group">${modelOptHtml}</div>
                 </div>
             `;
+
+            // توزيع الأسئلة: من 1 إلى 10 في اليمين، ومن 11 إلى 20 في اليسار (تنازلياً في العرض لتبدأ من أعلى لأسفل كالورقة)
+            if (i <= 10) {
+                rightColStudent += studentCardHtml;
+                rightColModel += modelCardHtml;
+            } else {
+                leftColStudent += studentCardHtml;
+                leftColModel += modelCardHtml;
+            }
         }
+
+        rightColStudent += '</div>';
+        leftColStudent += '</div>';
+        rightColModel += '</div>';
+        leftColModel += '</div>';
+
+        // ترتيب الأعمدة: اليمين أولاً (1-10) ثم اليسار (11-20)
+        studentContainer.innerHTML = rightColStudent + leftColStudent;
+        modelContainer.innerHTML = rightColModel + leftColModel;
     }
 
     function setStudentAns(qNum, ansKey) {
         studentAnswersState[qNum] = ansKey;
-        buildStudentAnswersGrid();
+        buildGrids();
         updateComparison();
     }
 
@@ -381,7 +400,7 @@
             document.getElementById('quickPasteInput').value = text;
             processAndApplyText(text);
         } catch (err) {
-            alert("تعذر الوصول للحافظة تلقائياً، يجدر اللصق يدويًا داخل الخانة ثم الضغط على تعبئة.");
+            alert("تعذر الوصول للحافظة تلقائياً، يرجى اللصق يدويًا داخل الخانة ثم الضغط على تعبئة.");
         }
     }
 
@@ -400,7 +419,7 @@
                 index++;
             }
         }
-        buildStudentAnswersGrid();
+        buildGrids();
         updateComparison();
     }
 
@@ -409,7 +428,7 @@
         for (let i = 1; i <= 20; i++) {
             studentAnswersState[i] = 'A';
         }
-        buildStudentAnswersGrid();
+        buildGrids();
         updateComparison();
     }
 
