@@ -73,7 +73,8 @@
 <div class="scanner-container">
     <h1>📷 أداة التصحيح والتغذية الراجعة المفصلة</h1>
     <p class="subtitle">
-        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026</p>
+        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026
+    </p>
 
     <!-- 1. اختيار النموذج المعتمد -->
     <div class="form-group" style="background: #ecfdf5; padding: 15px; border-radius: 12px; border: 1px solid #a7f3d0;">
@@ -96,7 +97,7 @@
         </div>
     </div>
 
-    <!-- 3. نافذة التعبئة الذكية الفورية اللحظية (تتوقف عند 20) -->
+    <!-- 3. نافذة التعبئة الذكية الفورية اللحظية -->
     <div class="ai-helper-box">
         <label style="color: #047857; margin-bottom: 5px;">3️⃣ خانة إدخال الإجابات الفورية (تتوقف تلقائياً عند السؤال 20):</label>
         <p style="font-size: 0.82rem; color: #065f46; margin-top: 0; margin-bottom: 10px;" id="inputCounterStatus">
@@ -136,8 +137,7 @@
     <button class="submit-btn" onclick="processAndSendToDashboard()">6️⃣ اعتماد النتيجة وإرسالها لوحة التحكم</button>
 
     <div class="footer-note">
-        
-        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026
+        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026[cite: 1]
     </div>
 </div>
 
@@ -275,7 +275,7 @@
                 { q: "12. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "مجزوم بحذف النون", B: "منصوب بالفتحة", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "A" },
                 { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
                 { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
-                { q: "15. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "تنصب المبتدأ وترفع الخبر", C: "تنصب المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
+                { q: "15. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
                 { q: "16. الفعل \"يدعو\" في جملة \"لم يدعُ المسلمُ إلا اللهَ\" مجزوم وعلامة جزمه:", options: { A: "السكون", B: "حذف حرف العلة (الواو)", C: "حذف النون", D: "الفتحة المقدرة" }, ans: "B" },
                 { q: "17. من الأفعال الخمسة المرفوعة بثبوت النون:", options: { A: "يدرسون", B: "لن يدرسوا", C: "لم يدرسوا", D: "ادرسوا" }, ans: "A" },
                 { q: "18. الفعل المضارع المجزوم بـ (لم) بالسكون الصحيح هو:", options: { A: "لم يسعَ", B: "لم يكتبْ", C: "لم يدعُ", D: "لم يقضِ" }, ans: "B" },
@@ -378,7 +378,6 @@
         updateComparison();
     }
 
-    // المعالجة اللحظية مع قفل الإدخال عند الوصول للسؤال 20
     function applyInstantPaste() {
         let inputField = document.getElementById('quickPasteInput');
         let text = inputField.value;
@@ -396,19 +395,16 @@
                 cleaned += 'D';
             }
             
-            // قفل الإدخال تماماً عند الوصول لـ 20 حرفاً
             if (cleaned.length >= 20) {
                 cleaned = cleaned.substring(0, 20);
                 break;
             }
         }
 
-        // تحديث الحقل إذا تم استبعاد رموز غير صالحة أو تجاوز 20
         if (inputField.value !== cleaned) {
             inputField.value = cleaned;
         }
 
-        // تحديث عداد الإدخال على الشاشة
         let count = cleaned.length;
         let statusText = `المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: ${count} / 20):`;
         if (count === 20) {
@@ -539,51 +535,63 @@
             return;
         }
 
-        let answersDetails = [];
-        let score = 0;
-        const currentQuestions = modelsData[currentModelKey].questions;
-        const labelsMap = {'A':'أ', 'B':'ب', 'C':'ج', 'D':'د'};
-        
-        for (let i = 1; i <= 20; i++) {
-            let studentKey = studentAnswersState[i] || 'A'; 
-            let qData = currentQuestions[i-1];
-            let correctKey = qData.ans; 
-            let isCorrect = (studentKey === correctKey);
-            if (isCorrect) score++;
-
-            let studentText = qData.options[studentKey] || studentKey;
-            let correctText = qData.options[correctKey] || correctKey;
-
-            answersDetails.push({
-                qText: qData.q,
-                studentAns: `(${labelsMap[studentKey]}) ${studentText}`,
-                correctAns: `(${labelsMap[correctKey]}) ${correctText}`,
-                isCorrect: isCorrect,
-                skill: i <= 4 ? 'est' : i <= 8 ? 'ikm' : i <= 12 ? 'swh' : i <= 16 ? 'arb' : 'sah'
-            });
-        }
-
-        let p = Math.round((score / 20) * 100);
-        let skillsObj = { est: p, ikm: p, swh: p, arb: p, sah: p, math: p };
-
-        let recordData = {
-            name: studentName,
-            score: score,
-            total: 20,
-            model_id: customModelName,
-            answers: answersDetails,
-            sections: skillsObj,
-            time: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
         try {
+            // فحص ما إذا كان الطالب قد أرسل لنفس النموذج مسبقاً
+            const existingCheck = await db.collection("alkfaeat_results")
+                .where("name", "==", studentName)
+                .where("model_id", "==", customModelName)
+                .get();
+
+            if (!existingCheck.empty) {
+                alert(`⚠️ تنبيه: تم رصد نتيجة الطالب (${studentName}) لـ (${customModelName}) من قبل! لا يمكن إرسالها مرة أخرى.`);
+                return;
+            }
+
+            let answersDetails = [];
+            let score = 0;
+            const currentQuestions = modelsData[currentModelKey].questions;
+            const labelsMap = {'A':'أ', 'B':'ب', 'C':'ج', 'D':'د'};
+            
+            for (let i = 1; i <= 20; i++) {
+                let studentKey = studentAnswersState[i] || 'A'; 
+                let qData = currentQuestions[i-1];
+                let correctKey = qData.ans; 
+                let isCorrect = (studentKey === correctKey);
+                if (isCorrect) score++;
+
+                let studentText = qData.options[studentKey] || studentKey;
+                let correctText = qData.options[correctKey] || correctKey;
+
+                answersDetails.push({
+                    qText: qData.q,
+                    studentAns: `(${labelsMap[studentKey]}) ${studentText}`,
+                    correctAns: `(${labelsMap[correctKey]}) ${correctText}`,
+                    isCorrect: isCorrect,
+                    skill: i <= 4 ? 'est' : i <= 8 ? 'ikm' : i <= 12 ? 'swh' : i <= 16 ? 'arb' : 'sah'
+                });
+            }
+
+            let p = Math.round((score / 20) * 100);
+            let skillsObj = { est: p, ikm: p, swh: p, arb: p, sah: p, math: p };
+
+            let recordData = {
+                name: studentName,
+                score: score,
+                total: 20,
+                model_id: customModelName,
+                answers: answersDetails,
+                sections: skillsObj,
+                time: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
             await db.collection("alkfaeat_results").add(recordData);
             alert(`✅ تم اعتماد درجة الطالب (${studentName}) بنجاح تحت اسم (${customModelName})!\nالدرجة النهائية: ${score} من 20 (${p}%) وتم إرسال تفاصيل التغذية الراجعة لوحة التحكم.`);
             
             clearQuickPaste();
             document.getElementById('studentSearchInput').value = '';
+
         } catch (error) {
-            alert("حدث خطأ أثناء الإرسال لقاعدة البيانات.");
+            alert("حدث خطأ أثناء فحص أو إرسال البيانات لقاعدة البيانات.");
         }
     }
 </script>
