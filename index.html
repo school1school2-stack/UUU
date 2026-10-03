@@ -136,7 +136,7 @@
             المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: 0 / 20):
         </p>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <input type="text" id="quickPasteInput" maxlength="20" placeholder="اكتب الحروف هنا (أ، ب، ج، د)..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem;" oninput="applyInstantPaste()">
+            <input type="text" id="quickPasteInput" placeholder="اكتب الحروف هنا أو ألصقها (أ ب ج د)..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem;" oninput="applyInstantPaste()">
             <button type="button" class="clear-btn" onclick="clearQuickPaste()">🗑️ تصفير الحقل</button>
         </div>
     </div>
@@ -169,7 +169,7 @@
     <button class="submit-btn" onclick="processAndSendToDashboard()">6️⃣ اعتماد النتيجة وإرسالها لوحة التحكم</button>
 
     <div class="footer-note">
-        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026
+        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026[cite: 1]
     </div>
 </div>
 
@@ -460,6 +460,9 @@
         let cleaned = '';
         for (let i = 0; i < text.length; i++) {
             let ch = text[i];
+            // تجاهل المسافات والرموز الفارغة تماماً
+            if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') continue;
+
             if (['أ', 'إ', 'آ', 'ا', 'A', 'a'].includes(ch)) {
                 cleaned += 'A';
             } else if (['ب', 'B', 'b'].includes(ch)) {
