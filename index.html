@@ -95,14 +95,14 @@
         </div>
     </div>
 
-    <!-- 3. نافذة التعبئة الذكية الفورية اللحظية -->
+    <!-- 3. نافذة التعبئة الذكية الفورية اللحظية (تتوقف عند 20) -->
     <div class="ai-helper-box">
-        <label style="color: #047857; margin-bottom: 5px;">3️⃣ خانة إدخال الإجابات الفورية (تتحدث لحظياً مع كل حرف):</label>
-        <p style="font-size: 0.82rem; color: #065f46; margin-top: 0; margin-bottom: 10px;">
-            اكتب أو الصق الحروف هنا (مثال: أبتث...) وسترى التلوين والتقدم يحدث فوراً لكل سؤال:
+        <label style="color: #047857; margin-bottom: 5px;">3️⃣ خانة إدخال الإجابات الفورية (تتوقف تلقائياً عند السؤال 20):</label>
+        <p style="font-size: 0.82rem; color: #065f46; margin-top: 0; margin-bottom: 10px;" id="inputCounterStatus">
+            المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: 0 / 20):
         </p>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <input type="text" id="quickPasteInput" placeholder="اكتب الحروف هنا لتتوزع لحظياً..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem;" oninput="applyInstantPaste()">
+            <input type="text" id="quickPasteInput" maxlength="20" placeholder="اكتب الحروف هنا (أ، ب، ج، د)..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem;" oninput="applyInstantPaste()">
             <button type="button" class="clear-btn" onclick="clearQuickPaste()">🗑️ تصفير الحقل</button>
         </div>
     </div>
@@ -272,8 +272,8 @@
                 { q: "11. جملة \"كان الطالبُ نشيطاً\"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "خبر كان منصوب بالفتحة", C: "حال منصوبة", D: "مفعول به" }, ans: "B" },
                 { q: "12. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "مجزوم بحذف النون", B: "منصوب بالفتحة", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "A" },
                 { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
-                { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", C: "يكتبون بجد" }, ans: "C" },
-                { q: "15. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
+                { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
+                { q: "15. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "تنصب المبتدأ وترفع الخبر", C: "تنصب المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
                 { q: "16. الفعل \"يدعو\" في جملة \"لم يدعُ المسلمُ إلا اللهَ\" مجزوم وعلامة جزمه:", options: { A: "السكون", B: "حذف حرف العلة (الواو)", C: "حذف النون", D: "الفتحة المقدرة" }, ans: "B" },
                 { q: "17. من الأفعال الخمسة المرفوعة بثبوت النون:", options: { A: "يدرسون", B: "لن يدرسوا", C: "لم يدرسوا", D: "ادرسوا" }, ans: "A" },
                 { q: "18. الفعل المضارع المجزوم بـ (لم) بالسكون الصحيح هو:", options: { A: "لم يسعَ", B: "لم يكتبْ", C: "لم يدعُ", D: "لم يقضِ" }, ans: "B" },
@@ -298,6 +298,7 @@
             studentAnswersState[i] = '';
         }
         document.getElementById('quickPasteInput').value = '';
+        document.getElementById('inputCounterStatus').innerText = "المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: 0 / 20):";
         buildGrids();
         updateComparison();
     }
@@ -375,11 +376,11 @@
         updateComparison();
     }
 
-    // الدالة اللحظية التي تعمل مع كل حرف تكتبه أو تلصقه
+    // المعالجة اللحظية مع قفل الإدخال عند الوصول للسؤال 20
     function applyInstantPaste() {
-        let text = document.getElementById('quickPasteInput').value;
+        let inputField = document.getElementById('quickPasteInput');
+        let text = inputField.value;
         
-        // تنقية وتوحيد أنواع الألف (أ، إ، آ، ا) إلى حرف A وإبقاء ب، ج، د
         let cleaned = '';
         for (let i = 0; i < text.length; i++) {
             let ch = text[i];
@@ -392,7 +393,26 @@
             } else if (['د', 'D', 'd'].includes(ch)) {
                 cleaned += 'D';
             }
+            
+            // قفل الإدخال تماماً عند الوصول لـ 20 حرفاً
+            if (cleaned.length >= 20) {
+                cleaned = cleaned.substring(0, 20);
+                break;
+            }
         }
+
+        // تحديث الحقل إذا تم استبعاد رموز غير صالحة أو تجاوز 20
+        if (inputField.value !== cleaned) {
+            inputField.value = cleaned;
+        }
+
+        // تحديث عداد الإدخال على الشاشة
+        let count = cleaned.length;
+        let statusText = `المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: ${count} / 20):`;
+        if (count === 20) {
+            statusText += " ✅ تم اكتمال الإدخال بنجاح!";
+        }
+        document.getElementById('inputCounterStatus').innerText = statusText;
         
         let index = 0;
         for (let i = 1; i <= 20; i++) {
@@ -400,7 +420,7 @@
                 studentAnswersState[i] = cleaned[index];
                 index++;
             } else {
-                studentAnswersState[i] = ''; // تصفير الأسئلة التي لم تصلها بعد
+                studentAnswersState[i] = ''; 
             }
         }
         buildGrids();
@@ -409,6 +429,7 @@
 
     function clearQuickPaste() {
         document.getElementById('quickPasteInput').value = '';
+        document.getElementById('inputCounterStatus').innerText = "المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: 0 / 20):";
         for (let i = 1; i <= 20; i++) {
             studentAnswersState[i] = '';
         }
