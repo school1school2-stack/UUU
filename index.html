@@ -12,7 +12,7 @@
             --text-main: #1e293b; --text-sub: #64748b; --border: #e2e8f0;
         }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .scanner-container { max-width: 950px; width: 100%; background: var(--card-bg); border-radius: 20px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px dashed var(--accent); }
+        .scanner-container { max-width: 950px; width: 100%; background: var(--card-bg); border-radius: 20px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px dashed var(--accent); position: relative; }
         h1 { color: var(--accent); font-size: 1.5rem; text-align: center; margin-top: 0; margin-bottom: 5px; }
         p.subtitle { text-align: center; color: var(--text-sub); font-size: 0.9rem; margin-bottom: 25px; }
         
@@ -65,6 +65,37 @@
 
         .submit-btn { width: 100%; background: #059669; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; }
         .submit-btn:hover { background: #047857; }
+        
+        /* تصميم النوافذ المنبثقة (Modals) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 9999; }
+        
+        /* النافذة الحمراء للتحذير */
+        .alert-box-red { background: #ffffff; border: 4px solid #dc2626; border-radius: 16px; width: 90%; max-width: 450px; padding: 25px; text-align: center; box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3); animation: shake 0.3s ease-in-out; }
+        .alert-box-red h3 { color: #dc2626; font-size: 1.4rem; margin-top: 0; margin-bottom: 10px; }
+        .alert-box-red p { color: #1e293b; font-size: 1rem; line-height: 1.6; margin-bottom: 20px; font-weight: bold; }
+        .alert-btn-red { background: #dc2626; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .alert-btn-red:hover { background: #b91c1c; }
+
+        /* النافذة الخضراء للنجاح والاعتماد */
+        .alert-box-green { background: #ffffff; border: 4px solid #059669; border-radius: 16px; width: 90%; max-width: 450px; padding: 25px; text-align: center; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3); animation: popUp 0.3s ease-in-out; }
+        .alert-box-green h3 { color: #059669; font-size: 1.4rem; margin-top: 0; margin-bottom: 10px; }
+        .alert-box-green p { color: #1e293b; font-size: 1rem; line-height: 1.6; margin-bottom: 20px; font-weight: bold; }
+        .alert-btn-green { background: #059669; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .alert-btn-green:hover { background: #047857; }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            50% { transform: translateX(6px); }
+            75% { transform: translateX(-6px); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         .footer-note { text-align: center; font-size: 0.75rem; color: var(--text-sub); margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; }
     </style>
 </head>
@@ -73,10 +104,10 @@
 <div class="scanner-container">
     <h1>📷 أداة التصحيح والتغذية الراجعة المفصلة</h1>
     <p class="subtitle">
-        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026
+        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 
     </p>
 
-    <!-- 1. اختيار النموذج المعتمد -->
+    <!-- 1. اختيار النموذج المعتمد (أ، ب، ج، د، هـ، و) -->
     <div class="form-group" style="background: #ecfdf5; padding: 15px; border-radius: 12px; border: 1px solid #a7f3d0;">
         <label style="color: #065f46; font-size: 1rem; margin-bottom: 8px;">1️⃣ اختر نموذج الاختبار للرصد:</label>
         <select id="modelSelector" onchange="switchModel(this.value)" style="border-color: #059669; font-weight: bold; color: #065f46;">
@@ -85,6 +116,7 @@
             <option value="modelC">النموذج الثالث (نموذج ج)</option>
             <option value="modelD">النموذج الرابع (نموذج د)</option>
             <option value="modelE">النموذج الخامس (نموذج هـ)</option>
+            <option value="modelF">النموذج السادس (نموذج و)</option>
         </select>
     </div>
 
@@ -137,7 +169,25 @@
     <button class="submit-btn" onclick="processAndSendToDashboard()">6️⃣ اعتماد النتيجة وإرسالها لوحة التحكم</button>
 
     <div class="footer-note">
-        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026 
+        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026
+    </div>
+</div>
+
+<!-- نافذة التنبيه الحمراء (للأخطاء والتنبيهات) -->
+<div id="alertModalRed" class="modal-overlay">
+    <div class="alert-box-red">
+        <h3>🚨 تنبيه هام!</h3>
+        <p id="alertModalRedText">حدث خطأ ما.</p>
+        <button type="button" class="alert-btn-red" onclick="closeModal('alertModalRed')">حسناً، فهمت</button>
+    </div>
+</div>
+
+<!-- نافذة الاعتماد الخضراء (للنجاح) -->
+<div id="alertModalGreen" class="modal-overlay">
+    <div class="alert-box-green">
+        <h3>✅ تم اعتماد النتيجة بنجاح!</h3>
+        <p id="alertModalGreenText">تم حفظ وتصدير درجة الطالب لوحة التحكم.</p>
+        <button type="button" class="alert-btn-green" onclick="closeModal('alertModalGreen')">رصد طالب جديد</button>
     </div>
 </div>
 
@@ -157,6 +207,7 @@
     let studentAnswersState = {};
     let currentModelKey = 'modelA';
 
+    // بيانات الأسئلة والمفاتيح الدقيقة للنماذج الستة المستخرجة من مستنداتك
     const modelsData = {
         modelA: {
             name: "نموذج أ",
@@ -196,7 +247,7 @@
                 { q: "8. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "مجزوم بحذف النون", B: "منصوب بالفتحة", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "A" },
                 { q: "9. الأداة \"لن\" تؤثر في الفعل المضارع بـ:", options: { A: "الجزم", B: "النصب", C: "الرفع", D: "الجر" }, ans: "B" },
                 { q: "10. عند بناء الفعل \"كَتَبَ\" للمجهول يطابق الضبط فيصبح:", options: { A: "كُتِبَ", B: "يُكْتَبُ", C: "كَاتَبَ", D: "أُكْتِبَ" }, ans: "A" },
-                { q: "11. جملة \"كان الطالبُ نشيطاً\"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "حال منصوبة", C: "خبر كان منصوب بالفتحة", D: "مفعول به" }, ans: "C" },
+                { q: "11. جملة \"كان الطالبُ نشيطاً"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "حال منصوبة", C: "خبر كان منصوب بالفتحة", D: "مفعول به" }, ans: "C" },
                 { q: "12. الفاعل في جملة \"قرأَ الطالبُ الكتابَ\" هو:", options: { A: "قرأَ", B: "الطالبُ", C: "الكتابَ", D: "ضمير مستتر" }, ans: "B" },
                 { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
                 { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
@@ -223,7 +274,7 @@
                 { q: "10. الأداة \"لن\" تؤثر في الفعل المضارع بـ:", options: { A: "النصب", B: "الجزم", C: "الرفع", D: "الجر" }, ans: "A" },
                 { q: "11. الفاعل في جملة \"قرأَ الطالبُ الكتابَ\" هو:", options: { A: "قرأَ", B: "الكتابَ", C: "الطالبُ", D: "ضمير مستتر" }, ans: "C" },
                 { q: "12. عند بناء الفعل \"كَتَبَ\" للمجهول يطابق الضبط فيصبح:", options: { A: "يُكْتَبُ", B: "كُتِبَ", C: "أُكْتِبَ", D: "كَاتَبَ" }, ans: "B" },
-                { q: "13. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "تنصب المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
+                { q: "13. \"إنَّ وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "ترفع المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "A" },
                 { q: "14. الفعل المضارع المجزوم بـ (لم) بالسكون الصحيح هو:", options: { A: "لم يسعَ", B: "لم يكتبْ", C: "لم يدعُ", D: "لم يقضِ" }, ans: "B" },
                 { q: "15. الفعل \"يدعو\" في جملة \"لم يدعُ المسلمُ إلا اللهَ\" مجزوم وعلامة جزمه:", options: { A: "السكون", B: "حذف حرف العلة (الواو)", C: "حذف النون", D: "الفتحة المقدرة" }, ans: "B" },
                 { q: "16. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
@@ -234,7 +285,7 @@
             ]
         },
         modelD: {
-            name: "نموذج 4 (د)",
+            name: "نموذج د",
             questions: [
                 { q: "1. الفاعل في جملة \"قرأَ الطالبُ الكتابَ\" هو:", options: { A: "قرأَ", B: "الكتابَ", C: "الطالبُ", D: "ضمير مستتر" }, ans: "C" },
                 { q: "2. الجملة المشتملة على حرف ناسخ هي:", options: { A: "أصبح الجوُّ جميلاً", B: "كان الطالبُ نشيطاً", C: "إنَّ العلمَ نورٌ", D: "صار الماءُ ثلجاً" }, ans: "C" },
@@ -246,7 +297,7 @@
                 { q: "8. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "منصوب بالفتحة", B: "مجزوم بحذف النون", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "B" },
                 { q: "9. الأداة \"لن\" تؤثر في الفعل المضارع بـ:", options: { A: "الجزم", B: "النصب", C: "الرفع", D: "الجر" }, ans: "B" },
                 { q: "10. عند بناء الفعل \"كَتَبَ\" للمجهول يطابق الضبط فيصبح:", options: { A: "يُكْتَبُ", B: "كُتِبَ", C: "كَاتَبَ", D: "أُكْتِبَ" }, ans: "B" },
-                { q: "11. جملة \"كان الطالبُ نشيطاً\"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "حال منصوبة", C: "خبر كان منصوب بالفتحة", D: "مفعول به" }, ans: "C" },
+                { q: "11. جملة \"كان الطالبُ نشيطاً"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "حال منصوبة", C: "خبر كان منصوب بالفتحة", D: "مفعول به" }, ans: "C" },
                 { q: "12. نائب الفاعل في جملة \"كُوفِئَ المتفوقُ\" مرفوع وعلامة رفعه:", options: { A: "الفتحة", B: "الضمة الظاهرة", C: "الألف", D: "ثبوت النون" }, ans: "B" },
                 { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
                 { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
@@ -259,7 +310,7 @@
             ]
         },
         modelE: {
-            name: "نموذج 5 (هـ)",
+            name: "نموذج هـ",
             questions: [
                 { q: "1. الجملة المشتملة على حرف ناسخ هي:", options: { A: "أصبح الجوُّ جميلاً", B: "صار الماءُ ثلجاً", C: "إنَّ العلمَ نورٌ", D: "كان الطالبُ نشيطاً" }, ans: "C" },
                 { q: "2. الفاعل في جملة \"قرأَ الطالبُ الكتابَ\" هو:", options: { A: "الكتابَ", B: "قرأَ", C: "الطالبُ", D: "ضمير مستتر" }, ans: "C" },
@@ -271,7 +322,7 @@
                 { q: "8. نائب الفاعل في جملة \"كُوفِئَ المتفوقُ\" مرفوع وعلامة رفعه:", options: { A: "الفتحة", B: "الضمة الظاهرة", C: "الألف", D: "ثبوت النون" }, ans: "B" },
                 { q: "9. الأداة \"لن\" تؤثر في الفعل المضارع بـ:", options: { A: "الجزم", B: "النصب", C: "الرفع", D: "الجر" }, ans: "B" },
                 { q: "10. عند بناء الفعل \"كَتَبَ\" للمجهول يطابق الضبط فيصبح:", options: { A: "كُتِبَ", B: "يُكْتَبُ", C: "كَاتَبَ", D: "أُكْتِبَ" }, ans: "A" },
-                { q: "11. جملة \"كان الطالبُ نشيطاً\"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "خبر كان منصوب بالفتحة", C: "حال منصوبة", D: "مفعول به" }, ans: "B" },
+                { q: "11. جملة \"كان الطالبُ نشيطاً"، كلمة \"نشيطاً\" تعرب:", options: { A: "اسم كان مرفوع", B: "خبر كان منصوب بالفتحة", C: "حال منصوبة", D: "مفعول به" }, ans: "B" },
                 { q: "12. الفعل المضارع \"يهملوا\" في جملة \"لم يهملوا\":", options: { A: "مجزوم بحذف النون", B: "منصوب بالفتحة", C: "مرفوع بثبوت النون", D: "مجزوم بالسكون" }, ans: "A" },
                 { q: "13. الضبط الصحيح لكلمة (الجو) في \"إنَّ الجوَّ جميلٌ\":", options: { A: "الجوُّ (بالضم)", B: "الجوَّ (بالفتح)", C: "الجوِّ (بالكسر)", D: "الجوٌّ (بالتنوین)" }, ans: "B" },
                 { q: "14. الفعل المضارع المرفوع بالضمة الظاهرة فيما يلي:", options: { A: "لن يكتبَ", B: "لم يكتبْ", C: "يكتبُ الطالبُ", D: "يكتبون بجد" }, ans: "C" },
@@ -281,6 +332,31 @@
                 { q: "18. الفعل المضارع المجزوم بـ (لم) بالسكون الصحيح هو:", options: { A: "لم يسعَ", B: "لم يكتبْ", C: "لم يدعُ", D: "لم يقضِ" }, ans: "B" },
                 { q: "19. الجملة المبنية للمعلوم فيما يلي هي:", options: { A: "كُتِبَ الدرسُ", B: "فُتِحَ البابُ", C: "حفظَ الطالبُ الدرسَ", D: "كُوفِئَ المجتهدُ" }, ans: "C" },
                 { q: "20. \"كان وأخواتها\" عند دخولها على الجملة الاسمية فإنها:", options: { A: "تنصب المبتدأ وترفع الخبر", B: "ترفع المبتدأ وتنصب الخبر", C: "تنصب المبتدأ والخبر", D: "تجزم المبتدأ والخبر" }, ans: "B" }
+            ]
+        },
+        modelF: {
+            name: "نموذج و",
+            questions: [
+                { q: "1. الجملة المشتملة على فعل ناسخ هي:", options: { A: "إنَّ المعلمَ مخلصٌ", B: "كان الجوُّ ماطراً", C: "لعلَّ الطالبَ قادمٌ", D: "ليتَ الشَبابَ يعودُ" }, ans: "B" },
+                { q: "2. الخبر في جملة \"الشمسُ ساطعةٌ\" هو:", options: { A: "الشمسُ", B: "ساطعةٌ", C: "ضمير مستتر", D: "محذوف" }, ans: "B" },
+                { q: "3. الفعل المضارع \"تقرأَ\" في جملة \"لن تقرأَ القراءةَ الخاطئةَ\" هو فعل:", options: { A: "مرفوع وعلامة رفعه الضمة", B: "منصوب وعلامة نصبه الفتحة", C: "مجزوم وعلامة جزمه السكون", D: "مبني على الفتح" }, ans: "B" },
+                { q: "4. الجملة المشتملة على فعل مضارع مجزوم بـ (لم) هي:", options: { A: "لن يفرّطَ المؤمنُ في أمانته", B: "لم ينسَ الطالبُ واجبه", C: "يذاكرُ التلميذُ دروسه", D: "كي ينجحَ التلميذُ يجب أن يدرس" }, ans: "B" },
+                { q: "5. الفعل المضارع \"تكتبون\" من الأفعال الخمسة، وعلامة رفعه هي:", options: { A: "الضمة الظاهرة", B: "ثبوت النون", C: "حذف النون", D: "الضمة المقدرة" }, ans: "B" },
+                { q: "6. الفاعل في جملة \"كتبَ المحامي العقدَ\" هو:", options: { A: "كتبَ", B: "العقدَ", C: "المحامي", D: "ضمير مستتر" }, ans: "C" },
+                { q: "7. عند حذف الفعل الناسخ من جملة \"أصبحَ المهندسُ بارعاً\" ترجع الجملة إلى:", options: { A: "المهندسُ بارعاً", B: "المهندسُ بارعٌ", C: "المهندساً بارعٌ", D: "المهندسِ بارعٍ" }, ans: "B" },
+                { q: "8. الفعل المضارع \"يسعى\" عند سبقه بالأداة (لن) يصبح:", options: { A: "يسعى (الفتحة المقدرة للتعذر)", B: "لن يسعَ", C: "لن يسعىُ", D: "لن يسعون" }, ans: "A" },
+                { q: "9. علامة جزم الفعل المضارع الصحيح الآخر بـ (لم) هي:", options: { A: "حذف حرف العلة", B: "حذف النون", C: "السكون", D: "الفتحة" }, ans: "C" },
+                { q: "10. عند بناء الجملة \"فَتَحَ الخادمُ البابُ\" للمجهول تصبح:", options: { A: "فُتِحَ البابُ", B: "فَتَحَ البابَ", C: "يُفْتَحُ الخادمُ", D: "فُتِحَ البابَ" }, ans: "A" },
+                { q: "11. الفعل المضارع \"يلعبوا\" في جملة \"كي يلعبوا بالكرة\" منصوب وعلامة نصبه:", options: { A: "الفتحة الظاهرة", B: "حذف النون", C: "ثبوت النون", D: "السكون" }, ans: "B" },
+                { q: "12. إعراب كلمة \"مؤمنًا\" في جملة \"صارَ الرجلُ مؤمنًا\":", options: { A: "اسم صار مرفوع", B: "خبر صار منصوب بالفتحة", C: "فاعل مرفوع", D: "مفعول به منصوب" }, ans: "B" },
+                { q: "13. الضبط الصحيح لكلمة (العلم) في جملة \"لعل العلم نافع\":", options: { A: "العلمُ (بالضم)", B: "العلمَ (بالفتح)", C: "العلمِ (بالكسر)", D: "العلمٌ (بالتنوين)" }, ans: "B" },
+                { q: "14. الجملة التي تحتوي على نائب فاعل هي:", options: { A: "حفظَ الطالبُ القرآنَ", B: "كُوفِئَ المبدعُ", C: "يشرحُ المعلمُ الدرسَ", D: "نزلَ المطرُ غزيرًا" }, ans: "B" },
+                { q: "15. الفعل المضارع المرفوع بالضمة المقدرة فيما يلي هو:", options: { A: "يكتبُ", B: "يدعو", C: "لن يكتبَ", D: "لم يكتبْ" }, ans: "B" },
+                { q: "16. عند إدخال الأداة (لم) على الفعل \"يمشي\" تكتب الجملة:", options: { A: "لم يمشي", B: "لم يمشِ", C: "لم يمشَ", D: "لم يمشو" }, ans: "B" },
+                { q: "17. عند بناء الفعل المضارع \"يَشْرَحُ\" للمجهول يُضبط بـ:", options: { A: "شُرِحَ", B: "يُشْرَحُ", C: "أشْرَحُ", D: "شَارَحَ" }, ans: "B" },
+                { q: "18. الأداة التي تنصب الفعل المضارع من الأدوات التالية هي:", options: { A: "لم", B: "إنَّ", C: "كي", D: "كان" }, ans: "C" },
+                { q: "19. الجملة المبنية للمعلوم هي:", options: { A: "رُفِعَ العلمُ", B: "قُرِئَتِ القصّةُ", C: "زرعَ الفلاحُ الأرضَ", D: "أُكِلَ الطعامُ" }, ans: "C" },
+                { q: "20. علامة نصب الأفعال الخمسة بـ (لن) هي:", options: { A: "حذف النون", B: "ثبوت النون", C: "الفتحة", D: "السكون" }, ans: "A" }
             ]
         }
     };
@@ -526,24 +602,50 @@
         }
     });
 
+    // دوال التحكم بالنافذة المنبثقة
+    function showModal(modalId, text) {
+        if (modalId === 'alertModalRed') {
+            document.getElementById('alertModalRedText').innerHTML = text;
+        } else {
+            document.getElementById('alertModalGreenText').innerHTML = text;
+        }
+        document.getElementById(modalId).style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+        if (modalId === 'alertModalGreen') {
+            clearQuickPaste();
+            document.getElementById('studentSearchInput').value = '';
+        }
+    }
+
     async function processAndSendToDashboard() {
         const studentName = document.getElementById('studentSearchInput').value.trim();
+        const quickInputVal = document.getElementById('quickPasteInput').value.trim();
         const customModelName = modelsData[currentModelKey].name;
 
+        // 1. التحقق من اختيار اسم الطالب
         if (!studentName) {
-            alert('الرجاء اختيار اسم الطالب من القائمة أولاً.');
+            showModal('alertModalRed', '⚠️ تنبيه:<br>الرجاء اختيار اسم الطالب من القائمة أولاً.');
+            return;
+        }
+
+        // 2. التحقق من وجود إجابات مضافة في الحقل
+        if (!quickInputVal || quickInputVal.length === 0) {
+            showModal('alertModalRed', '⚠️ تنبيه خطأ في الإدخال:<br>لم تقم بإضافة أي إجابات للطالب في حقل الإدخال الفوري! يرجى كتابة أو لصق الإجابات أولاً.');
             return;
         }
 
         try {
-            // فحص ما إذا كان الطالب قد أرسل لنفس النموذج مسبقاً
+            // 3. فحص ما إذا كان الطالب قد أرسل لنفس النموذج مسبقاً
             const existingCheck = await db.collection("alkfaeat_results")
                 .where("name", "==", studentName)
                 .where("model_id", "==", customModelName)
                 .get();
 
             if (!existingCheck.empty) {
-                alert(`⚠️ تنبيه: تم رصد نتيجة الطالب (${studentName}) لـ (${customModelName}) من قبل! لا يمكن إرسالها مرة أخرى.`);
+                showModal('alertModalRed', `⚠️ تنبيه تكرار:<br>تم رصد نتيجة الطالب (${studentName}) لـ (${customModelName}) مسبقاً! لا يمكن إرسالها مرة أخرى.`);
                 return;
             }
 
@@ -585,13 +687,12 @@
             };
 
             await db.collection("alkfaeat_results").add(recordData);
-            alert(`✅ تم اعتماد درجة الطالب (${studentName}) بنجاح تحت اسم (${customModelName})!\nالدرجة النهائية: ${score} من 20 (${p}%) وتم إرسال تفاصيل التغذية الراجعة لوحة التحكم.`);
             
-            clearQuickPaste();
-            document.getElementById('studentSearchInput').value = '';
+            // إظهار نافذة النجاح الخضراء المنبثقة
+            showModal('alertModalGreen', `✅ تم اعتماد درجة الطالب: <strong>${studentName}</strong><br>تحت اسم: <strong>${customModelName}</strong><br>الدرجة النهائية: <strong>${score} من 20 (${p}%)</strong><br><span style="font-size:0.85rem; color:#047857;">تم إرسال التفاصيل لوحة التحكم بنجاح.</span>`);
 
         } catch (error) {
-            alert("حدث خطأ أثناء فحص أو إرسال البيانات لقاعدة البيانات.");
+            showModal('alertModalRed', "حدث خطأ أثناء فحص أو إرسال البيانات لقاعدة البيانات.");
         }
     }
 </script>
