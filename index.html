@@ -60,6 +60,10 @@
 
         .ai-helper-box { background: #f0fdf4; border: 1px solid #10b981; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         
+        .mic-btn { background: #0284c7; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        .mic-btn:hover { background: #0369a1; }
+        .mic-btn.recording { background: #dc2626 !important; animation: pulse 1.5s infinite; }
+
         .clear-btn { background: #ef4444; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
         .clear-btn:hover { background: #dc2626; }
 
@@ -96,6 +100,12 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
         .footer-note { text-align: center; font-size: 0.75rem; color: var(--text-sub); margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; }
     </style>
 </head>
@@ -129,21 +139,22 @@
         </div>
     </div>
 
-    <!-- 3. نافذة التعبئة الذكية الفورية اللحظية بالحروف ABCD -->
+    <!-- 3. نافذة التعبئة الذكية الفورية اللحظية (مع زر الميكروفون الصوتي) -->
     <div class="ai-helper-box">
-        <label style="color: #047857; margin-bottom: 5px;">3️⃣ خانة إدخال أو لصق الإجابات السريعة (تظهر بالحروف ABCD):</label>
+        <label style="color: #047857; margin-bottom: 5px;">3️⃣ خانة إدخال الإجابات الفورية (تظهر بالحروف ABCD تدعم الكتابة أو الصوت):</label>
         <p style="font-size: 0.82rem; color: #065f46; margin-top: 0; margin-bottom: 10px;" id="inputCounterStatus">
             المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: 0 / 20):
         </p>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <input type="text" id="quickPasteInput" placeholder="اكتب أو ألصق حروف الإجابات ABCD..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem; text-transform: uppercase;" oninput="applyInstantPaste()">
+            <input type="text" id="quickPasteInput" placeholder="اكتب الحروف ABCD، ألصقها، أو استخدم المايك..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem; text-transform: uppercase;" oninput="applyInstantPaste()">
+            <button type="button" id="micBtn" class="mic-btn" onclick="toggleVoiceInput()">🎙️ إدخال صوتي</button>
             <button type="button" class="clear-btn" onclick="clearQuickPaste()">🗑️ تصفير الحقل</button>
         </div>
     </div>
 
     <!-- 4. تظليل إجابات الطالب اللحظية -->
     <div class="section-box" style="border-color: #10b981; background: #f0fdf4;">
-        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (تتحدث لحظياً حسب الكتابة/اللصق أو الضغط اليدوي):</label>
+        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (تتحدث لحظياً حسب الإدخال أو الصوت أو الضغط على الأزرار):</label>
         <div class="grid-columns-container" id="studentAnswersContainer"></div>
     </div>
 
@@ -206,6 +217,102 @@
     let allStudents = [];
     let studentAnswersState = {};
     let currentModelKey = 'modelA';
+    let recognition = null;
+    let isRecording = false;
+
+    function initSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ar-SA';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                let spokenText = (finalTranscript || interimTranscript).trim();
+                if (spokenText) {
+                    let converted = convertSpokenTextToEnglishChars(spokenText);
+                    let inputField = document.getElementById('quickPasteInput');
+                    inputField.value += converted;
+                    applyInstantPaste();
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error("خطأ في الميكروفون:", event.error);
+                stopVoiceInput();
+            };
+
+            recognition.onend = function() {
+                if (isRecording) {
+                    try { recognition.start(); } catch(e) {}
+                }
+            };
+        }
+    }
+
+    // تحويل الكلمات المنطوقة بالعربية (أ، باء، جيم، دال) إلى حروف إنجليزية ABCD
+    function convertSpokenTextToEnglishChars(text) {
+        let result = '';
+        text = text.replace(/ألف/g, 'A')
+                   .replace(/باء/g, 'B')
+                   .replace(/جيم/g, 'C')
+                   .replace(/دال/g, 'D');
+
+        for (let i = 0; i < text.length; i++) {
+            let ch = text[i];
+            if (['أ', 'إ', 'آ', 'ا', 'A', 'a'].includes(ch)) result += 'A';
+            else if (['ب', 'B', 'b'].includes(ch)) result += 'B';
+            else if (['ج', 'C', 'c'].includes(ch)) result += 'C';
+            else if (['د', 'D', 'd'].includes(ch)) result += 'D';
+        }
+        return result;
+    }
+
+    function toggleVoiceInput() {
+        if (!recognition) {
+            initSpeechRecognition();
+        }
+        if (!recognition) {
+            showModal('alertModalRed', '⚠️️ متصفحك لا يدعم الإدخال الصوتي. يرجى استخدام متصفح Google Chrome.');
+            return;
+        }
+
+        const micBtn = document.getElementById('micBtn');
+        if (!isRecording) {
+            try {
+                recognition.start();
+                isRecording = true;
+                micBtn.classList.add('recording');
+                micBtn.innerText = "🛑 جاري الاستماع...";
+            } catch (e) {
+                console.error(e);
+            }
+        } else {
+            stopVoiceInput();
+        }
+    }
+
+    function stopVoiceInput() {
+        if (recognition && isRecording) {
+            try { recognition.stop(); } catch(e) {}
+        }
+        isRecording = false;
+        const micBtn = document.getElementById('micBtn');
+        micBtn.classList.remove('recording');
+        micBtn.innerText = "🎙️ إدخال صوتي";
+    }
 
     const modelsData = {
         modelA: {
@@ -367,10 +474,12 @@
         buildGrids();
         loadAllowedStudents();
         updateComparison();
+        initSpeechRecognition();
     };
 
     function switchModel(modelKey) {
         currentModelKey = modelKey;
+        stopVoiceInput();
         for (let i = 1; i <= 20; i++) {
             studentAnswersState[i] = '';
         }
@@ -447,6 +556,7 @@
         modelContainer.innerHTML = rightColModel + leftColModel;
     }
 
+    // دالة التحديث العكسي لتظهر الحروف الإنجليزية ABCD في حقل الإدخال عند الضغط على الأزرار
     function setStudentAns(qNum, ansKey) {
         studentAnswersState[qNum] = ansKey;
         
@@ -454,7 +564,7 @@
         for (let i = 1; i <= 20; i++) {
             let val = studentAnswersState[i];
             if (val) {
-                updatedText += val;
+                updatedText += val; // إظهار الحرف الإنجليزي ABCD
             }
         }
         
@@ -524,6 +634,7 @@
     }
 
     function clearQuickPaste() {
+        stopVoiceInput();
         document.getElementById('quickPasteInput').value = '';
         document.getElementById('inputCounterStatus').innerText = "المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: 0 / 20):";
         for (let i = 1; i <= 20; i++) {
@@ -709,6 +820,7 @@
     }
 
     async function processAndSendToDashboard() {
+        stopVoiceInput();
         const studentName = document.getElementById('studentSearchInput').value.trim();
         const quickInputVal = document.getElementById('quickPasteInput').value.trim();
         const customModelName = modelsData[currentModelKey].name;
@@ -719,7 +831,7 @@
         }
 
         if (!quickInputVal || quickInputVal.length === 0) {
-            showModal('alertModalRed', '⚠️ تنبيه خطأ في الإدخال:<br>لم تقم بإضافة أي إجابات للطالب! يرجى إدخالها كتابة أو لصقاً.');
+            showModal('alertModalRed', '⚠️ تنبيه خطأ في الإدخال:<br>لم تقم بإضافة أي إجابات للطالب! يرجى إدخالها كتابة، لصقاً، أو بالصوت عبر المايك.');
             return;
         }
 
