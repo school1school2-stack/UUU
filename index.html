@@ -104,12 +104,12 @@
 <div class="scanner-container">
     <h1>📷 أداة التصحيح والتغذية الراجعة المفصلة</h1>
     <p class="subtitle">
-        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 2026
+        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 2026[cite: 1]
     </p>
 
-    <!-- 1. اختيار النموذج الرئيسي للرصد -->
+    <!-- 1. اختيار النموذج المعتمد (أ، ب، ج، د، هـ، و) -->
     <div class="form-group" style="background: #ecfdf5; padding: 15px; border-radius: 12px; border: 1px solid #a7f3d0;">
-        <label style="color: #065f46; font-size: 1rem; margin-bottom: 8px;">1️⃣ اختر نموذج الاختبار للرصد أو الإدخال:</label>
+        <label style="color: #065f46; font-size: 1rem; margin-bottom: 8px;">1️⃣ اختر نموذج الاختبار للرصد:</label>
         <select id="modelSelector" onchange="switchModel(this.value)" style="border-color: #059669; font-weight: bold; color: #065f46;">
             <option value="modelA">النموذج الأول (نموذج أ)</option>
             <option value="modelB">النموذج الثاني (نموذج ب)</option>
@@ -129,29 +129,21 @@
         </div>
     </div>
 
-    <!-- خيار استعراض نماذج الطالب السابقة المسجلة -->
-    <div class="form-group" id="studentModelsGroup" style="display: none; background: #fef3c7; padding: 15px; border-radius: 12px; border: 1px solid #f59e0b;">
-        <label style="color: #b45309; font-size: 1rem; margin-bottom: 8px;">📂 نماذج الاختبار التي اختبرها الطالب مسبقاً (اختر لاستعراضها):</label>
-        <select id="studentSavedModelsSelector" onchange="loadStudentSpecificModel(this.value)" style="border-color: #f59e0b; font-weight: bold; color: #b45309;">
-            <!-- تُعبأ تلقائياً عند اختيار الطالب -->
-        </select>
-    </div>
-
-    <!-- 3. نافذة التعبئة الذكية الفورية اللحظية -->
+    <!-- 3. نافذة التعبئة الذكية الفورية اللحظية بالحروف ABCD -->
     <div class="ai-helper-box">
-        <label style="color: #047857; margin-bottom: 5px;">3️⃣ خانة إدخال الإجابات الفورية (تتوقف تلقائياً عند السؤال 20):</label>
+        <label style="color: #047857; margin-bottom: 5px;">3️⃣ خانة إدخال أو لصق الإجابات السريعة (تظهر بالحروف ABCD):</label>
         <p style="font-size: 0.82rem; color: #065f46; margin-top: 0; margin-bottom: 10px;" id="inputCounterStatus">
             المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: 0 / 20):
         </p>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <input type="text" id="quickPasteInput" placeholder="اكتب الحروف هنا أو ألصقها (أ ب ج د)..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem;" oninput="applyInstantPaste()">
+            <input type="text" id="quickPasteInput" placeholder="اكتب أو ألصق حروف الإجابات ABCD..." style="flex: 1; padding: 10px; border: 1px solid #10b981; border-radius: 8px; font-size: 1rem; text-transform: uppercase;" oninput="applyInstantPaste()">
             <button type="button" class="clear-btn" onclick="clearQuickPaste()">🗑️ تصفير الحقل</button>
         </div>
     </div>
 
     <!-- 4. تظليل إجابات الطالب اللحظية -->
     <div class="section-box" style="border-color: #10b981; background: #f0fdf4;">
-        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (تتحدث لحظياً حسب الإدخال - نفس ترتيب ورقة الاختبار):</label>
+        <label style="color: #047857; margin-bottom: 8px;">4️⃣ إجابات الطالب (تتحدث لحظياً حسب الكتابة/اللصق أو الضغط اليدوي):</label>
         <div class="grid-columns-container" id="studentAnswersContainer"></div>
     </div>
 
@@ -177,7 +169,7 @@
     <button class="submit-btn" onclick="processAndSendToDashboard()">6️⃣ اعتماد النتيجة وإرسالها لوحة التحكم</button>
 
     <div class="footer-note">
-        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026
+        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 الحقوق محفوظة 2026[cite: 1]
     </div>
 </div>
 
@@ -214,7 +206,6 @@
     let allStudents = [];
     let studentAnswersState = {};
     let currentModelKey = 'modelA';
-    let studentRecordsCache = []; // لتخزين جميع اختبارات الطالب المسترجعة
 
     const modelsData = {
         modelA: {
@@ -359,7 +350,7 @@
                 { q: "12. إعراب كلمة \"مؤمنًا\" في جملة \"صارَ الرجلُ مؤمنًا\":", options: { A: "اسم صار مرفوع", B: "خبر صار منصوب بالفتحة", C: "فاعل مرفوع", D: "مفعول به منصوب" }, ans: "B" },
                 { q: "13. الضبط الصحيح لكلمة (العلم) في جملة \"لعل العلم نافع\":", options: { A: "العلمُ (بالضم)", B: "العلمَ (بالفتح)", C: "العلمِ (بالكسر)", D: "العلمٌ (بالتنوين)" }, ans: "B" },
                 { q: "14. الجملة التي تحتوي على نائب فاعل هي:", options: { A: "حفظَ الطالبُ القرآنَ", B: "كُوفِئَ المبدعُ", C: "يشرحُ المعلمُ الدرسَ", D: "نزلَ المطرُ غزيرًا" }, ans: "B" },
-                { q: "15. الفعل المضارع المرفوع بالضمة المقدرة فيما يلي هو:", options: { A: "يكتبُ", B: "يدعو", C: "لن يكتبَ", D: "لم يكتبْ" }, ans: "B" },
+                { q: "15. الفعل المضارع المرفوع بالضمة المقدرة فيما يلي هو:", options: { A: "يكتبُ", B: "يدعو", C: "لن يكتبْ", D: "لم يكتبْ" }, ans: "B" },
                 { q: "16. عند إدخال الأداة (لم) على الفعل \"يمشي\" تكتب الجملة:", options: { A: "لم يمشي", B: "لم يمشِ", C: "لم يمشَ", D: "لم يمشو" }, ans: "B" },
                 { q: "17. عند بناء الفعل المضارع \"يَشْرَحُ\" للمجهول يُضبط بـ:", options: { A: "شُرِحَ", B: "يُشْرَحُ", C: "أشْرَحُ", D: "شَارَحَ" }, ans: "B" },
                 { q: "18. الأداة التي تنصب الفعل المضارع من الأدوات التالية هي:", options: { A: "لم", B: "إنَّ", C: "كي", D: "كان" }, ans: "C" },
@@ -458,6 +449,27 @@
 
     function setStudentAns(qNum, ansKey) {
         studentAnswersState[qNum] = ansKey;
+        
+        let updatedText = '';
+        for (let i = 1; i <= 20; i++) {
+            let val = studentAnswersState[i];
+            if (val) {
+                updatedText += val;
+            }
+        }
+        
+        document.getElementById('quickPasteInput').value = updatedText;
+        
+        let count = 0;
+        for (let i = 1; i <= 20; i++) {
+            if (studentAnswersState[i]) count++;
+        }
+        let statusText = `المنطقة مخصصة لـ 20 إجابة (المدخل حالياً: ${count} / 20):`;
+        if (count === 20) {
+            statusText += " ✅ تم اكتمال الإدخال بنجاح!";
+        }
+        document.getElementById('inputCounterStatus').innerText = statusText;
+
         buildGrids();
         updateComparison();
     }
@@ -590,87 +602,75 @@
             item.onclick = function() {
                 document.getElementById('studentSearchInput').value = name;
                 listDiv.style.display = 'none';
-                // جلب كافة اختبارات الطالب السابقة
-                fetchStudentAllRecords(name);
+                fetchStudentPreviousRecord(name);
             };
             listDiv.appendChild(item);
         });
     }
 
-    // دالة لجلب جميع نماذج الاختبارات التي اختبرها الطالب وعرضها في القائمة المخصصة
-    async function fetchStudentAllRecords(studentName) {
+    async function fetchStudentPreviousRecord(studentName) {
         try {
             const snapshot = await db.collection("alkfaeat_results")
                 .where("name", "==", studentName)
                 .get();
 
-            const savedModelsSelector = document.getElementById('studentSavedModelsSelector');
-            savedModelsSelector.innerHTML = '';
-            studentRecordsCache = [];
-
             if (!snapshot.empty) {
+                let targetDocData = null;
+
                 snapshot.forEach(doc => {
-                    let record = doc.data();
-                    studentRecordsCache.push(record);
+                    let docData = doc.data();
+                    let savedModelName = docData.model_id;
                     
-                    let opt = document.createElement('option');
-                    opt.value = record.model_id; // مثل "نموذج أ"
-                    opt.innerText = `${record.model_id} (الدرجة: ${record.score}/20 - ${Math.round((record.score/20)*100)}%)`;
-                    savedModelsSelector.appendChild(opt);
+                    for (let key in modelsData) {
+                        if (modelsData[key].name === savedModelName) {
+                            targetDocData = docData;
+                            break;
+                        }
+                    }
                 });
 
-                // إظهار صندوق اختيار نماذج الطالب
-                document.getElementById('studentModelsGroup').style.display = 'block';
+                if (targetDocData) {
+                    let savedModelName = targetDocData.model_id;
+                    let targetModelKey = '';
+                    for (let key in modelsData) {
+                        if (modelsData[key].name === savedModelName) {
+                            targetModelKey = key;
+                            break;
+                        }
+                    }
 
-                // تلقائياً استعراض أول نموذج مسجل للطالب
-                loadStudentSpecificModel(studentRecordsCache[0].model_id);
+                    if (targetModelKey) {
+                        document.getElementById('modelSelector').value = targetModelKey;
+                        currentModelKey = targetModelKey;
+                    }
+
+                    let reconstructedAnswers = "";
+                    if (targetDocData.answers && targetDocData.answers.length > 0) {
+                        targetDocData.answers.forEach(ansObj => {
+                            let match = ansObj.studentAns.match(/\(([^)]+)\)/);
+                            if (match) {
+                                let arabicChar = match[1];
+                                if (arabicChar === 'أ') reconstructedAnswers += 'A';
+                                else if (arabicChar === 'ب') reconstructedAnswers += 'B';
+                                else if (arabicChar === 'ج') reconstructedAnswers += 'C';
+                                else if (arabicChar === 'د') reconstructedAnswers += 'D';
+                                else reconstructedAnswers += 'A';
+                            }
+                        });
+                    }
+
+                    if (reconstructedAnswers.length > 0) {
+                        document.getElementById('quickPasteInput').value = reconstructedAnswers;
+                        applyInstantPaste();
+                    }
+                } else {
+                    clearQuickPaste();
+                }
             } else {
-                document.getElementById('studentModelsGroup').style.display = 'none';
                 clearQuickPaste();
             }
         } catch (error) {
-            console.error("خطأ في جلب اختبارات الطالب:", error);
-        }
-    }
-
-    // دالة لاستعراض نموذج معين اختاره الطالب من القائمة الفرعية
-    function loadStudentSpecificModel(modelName) {
-        let record = studentRecordsCache.find(r => r.model_id === modelName);
-        if (!record) return;
-
-        // مطابقة اسم النموذج مع القائمة الرئيسية
-        let targetModelKey = '';
-        for (let key in modelsData) {
-            if (modelsData[key].name === modelName) {
-                targetModelKey = key;
-                break;
-            }
-        }
-
-        if (targetModelKey) {
-            document.getElementById('modelSelector').value = targetModelKey;
-            currentModelKey = targetModelKey;
-        }
-
-        // استخراج إجابات الطالب الحرفية ووضعها في الحقل الفوري
-        let reconstructedAnswers = "";
-        if (record.answers && record.answers.length > 0) {
-            record.answers.forEach(ansObj => {
-                let match = ansObj.studentAns.match(/\(([^)]+)\)/);
-                if (match) {
-                    let arabicChar = match[1];
-                    if (arabicChar === 'أ') reconstructedAnswers += 'A';
-                    else if (arabicChar === 'ب') reconstructedAnswers += 'B';
-                    else if (arabicChar === 'ج') reconstructedAnswers += 'C';
-                    else if (arabicChar === 'د') reconstructedAnswers += 'D';
-                    else reconstructedAnswers += 'A';
-                }
-            });
-        }
-
-        if (reconstructedAnswers.length > 0) {
-            document.getElementById('quickPasteInput').value = reconstructedAnswers;
-            applyInstantPaste();
+            console.error("خطأ في جلب بيانات الطالب للاستعراض:", error);
         }
     }
 
@@ -691,7 +691,6 @@
         }
     });
 
-    // دوال التحكم بالنافذة المنبثقة
     function showModal(modalId, text) {
         if (modalId === 'alertModalRed') {
             document.getElementById('alertModalRedText').innerHTML = text;
@@ -706,7 +705,6 @@
         if (modalId === 'alertModalGreen') {
             clearQuickPaste();
             document.getElementById('studentSearchInput').value = '';
-            document.getElementById('studentModelsGroup').style.display = 'none';
         }
     }
 
@@ -721,7 +719,7 @@
         }
 
         if (!quickInputVal || quickInputVal.length === 0) {
-            showModal('alertModalRed', '⚠️ تنبيه خطأ في الإدخال:<br>لم تقم بإضافة أي إجابات للطالب في حقل الإدخال الفوري! يرجى كتابة أو لصق الإجابات أولاً.');
+            showModal('alertModalRed', '⚠️ تنبيه خطأ في الإدخال:<br>لم تقم بإضافة أي إجابات للطالب! يرجى إدخالها كتابة أو لصقاً.');
             return;
         }
 
