@@ -104,12 +104,12 @@
 <div class="scanner-container">
     <h1>📷 أداة التصحيح والتغذية الراجعة المفصلة</h1>
     <p class="subtitle">
-        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 2026
+        ✨ أ / عبدالعزيز الفيفي - ثانوية الأمير عبدالمجيد 🎓 2026[cite: 1]
     </p>
 
-    <!-- 1. اختيار النموذج المعتمد (أ، ب، ج، د، هـ، و) -->
+    <!-- 1. اختيار النموذج الرئيسي للرصد -->
     <div class="form-group" style="background: #ecfdf5; padding: 15px; border-radius: 12px; border: 1px solid #a7f3d0;">
-        <label style="color: #065f46; font-size: 1rem; margin-bottom: 8px;">1️⃣ اختر نموذج الاختبار للرصد:</label>
+        <label style="color: #065f46; font-size: 1rem; margin-bottom: 8px;">1️⃣ اختر نموذج الاختبار للرصد أو الإدخال:</label>
         <select id="modelSelector" onchange="switchModel(this.value)" style="border-color: #059669; font-weight: bold; color: #065f46;">
             <option value="modelA">النموذج الأول (نموذج أ)</option>
             <option value="modelB">النموذج الثاني (نموذج ب)</option>
@@ -127,6 +127,14 @@
             <input type="text" id="studentSearchInput" class="student-search-input" placeholder="اكتب اسم الطالب للبحث..." oninput="filterStudents()" onclick="showDropdown()">
             <div id="studentDropdownList" class="student-dropdown-list"></div>
         </div>
+    </div>
+
+    <!-- خيار استعراض نماذج الطالب السابقة المسجلة -->
+    <div class="form-group" id="studentModelsGroup" style="display: none; background: #fef3c7; padding: 15px; border-radius: 12px; border: 1px solid #f59e0b;">
+        <label style="color: #b45309; font-size: 1rem; margin-bottom: 8px;">📂 نماذج الاختبار التي اختبرها الطالب مسبقاً (اختر لاستعراضها):</label>
+        <select id="studentSavedModelsSelector" onchange="loadStudentSpecificModel(this.value)" style="border-color: #f59e0b; font-weight: bold; color: #b45309;">
+            <!-- تُعبأ تلقائياً عند اختيار الطالب -->
+        </select>
     </div>
 
     <!-- 3. نافذة التعبئة الذكية الفورية اللحظية -->
@@ -206,6 +214,7 @@
     let allStudents = [];
     let studentAnswersState = {};
     let currentModelKey = 'modelA';
+    let studentRecordsCache = []; // لتخزين جميع اختبارات الطالب المسترجعة
 
     const modelsData = {
         modelA: {
@@ -581,64 +590,87 @@
             item.onclick = function() {
                 document.getElementById('studentSearchInput').value = name;
                 listDiv.style.display = 'none';
-                // جلب إجابات الطالب السابقة تلقائياً من قاعدة البيانات
-                fetchStudentPreviousRecord(name);
+                // جلب كافة اختبارات الطالب السابقة
+                fetchStudentAllRecords(name);
             };
             listDiv.appendChild(item);
         });
     }
 
-    // دالة جديدة لجلب بيانات الطالب المسجلة مسبقاً من قاعدة البيانات
-    async function fetchStudentPreviousRecord(studentName) {
+    // دالة لجلب جميع نماذج الاختبارات التي اختبرها الطالب وعرضها في القائمة المخصصة
+    async function fetchStudentAllRecords(studentName) {
         try {
             const snapshot = await db.collection("alkfaeat_results")
                 .where("name", "==", studentName)
                 .get();
 
+            const savedModelsSelector = document.getElementById('studentSavedModelsSelector');
+            savedModelsSelector.innerHTML = '';
+            studentRecordsCache = [];
+
             if (!snapshot.empty) {
-                // نفترض أخذ آخر نتيجة مسجلة أو نتيجة النموذج الحالي
-                let docData = snapshot.docs[0].data();
-                let savedModelName = docData.model_id; // مثل "نموذج أ" أو "نموذج 4 (د)"
+                snapshot.forEach(doc => {
+                    let record = doc.data();
+                    studentRecordsCache.push(record);
+                    
+                    let opt = document.createElement('option');
+                    opt.value = record.model_id; // مثل "نموذج أ"
+                    opt.innerText = `${record.model_id} (الدرجة: ${record.score}/20 - ${Math.round((record.score/20)*100)}%)`;
+                    savedModelsSelector.appendChild(opt);
+                });
 
-                // مطابقة اسم النموذج المحفوظ مع مفتاح select
-                let targetModelKey = '';
-                for (let key in modelsData) {
-                    if (modelsData[key].name === savedModelName) {
-                        targetModelKey = key;
-                        break;
-                    }
-                }
+                // إظهار صندوق اختيار نماذج الطالب
+                document.getElementById('studentModelsGroup').style.display = 'block';
 
-                if (targetModelKey) {
-                    document.getElementById('modelSelector').value = targetModelKey;
-                    currentModelKey = targetModelKey;
-                }
-
-                // استخراج إجابات الطالب الحرفية من تفاصيل الإجابات المحفوظة
-                let reconstructedAnswers = "";
-                if (docData.answers && docData.answers.length > 0) {
-                    docData.answers.forEach(ansObj => {
-                        // استخراج الحرف بين القوسين مثل (أ) أو (ب)
-                        let match = ansObj.studentAns.match(/\(([^)]+)\)/);
-                        if (match) {
-                            let arabicChar = match[1];
-                            if (arabicChar === 'أ') reconstructedAnswers += 'A';
-                            else if (arabicChar === 'ب') reconstructedAnswers += 'B';
-                            else if (arabicChar === 'ج') reconstructedAnswers += 'C';
-                            else if (arabicChar === 'د') reconstructedAnswers += 'D';
-                            else reconstructedAnswers += 'A';
-                        }
-                    });
-                }
-
-                // تعبئة حقل الإجابات الفورية تلقائياً
-                if (reconstructedAnswers.length > 0) {
-                    document.getElementById('quickPasteInput').value = reconstructedAnswers;
-                    applyInstantPaste();
-                }
+                // تلقائياً استعراض أول نموذج مسجل للطالب
+                loadStudentSpecificModel(studentRecordsCache[0].model_id);
+            } else {
+                document.getElementById('studentModelsGroup').style.display = 'none';
+                clearQuickPaste();
             }
         } catch (error) {
-            console.error("خطأ في جلب بيانات الطالب السابقة:", error);
+            console.error("خطأ في جلب اختبارات الطالب:", error);
+        }
+    }
+
+    // دالة لاستعراض نموذج معين اختاره الطالب من القائمة الفرعية
+    function loadStudentSpecificModel(modelName) {
+        let record = studentRecordsCache.find(r => r.model_id === modelName);
+        if (!record) return;
+
+        // مطابقة اسم النموذج مع القائمة الرئيسية
+        let targetModelKey = '';
+        for (let key in modelsData) {
+            if (modelsData[key].name === modelName) {
+                targetModelKey = key;
+                break;
+            }
+        }
+
+        if (targetModelKey) {
+            document.getElementById('modelSelector').value = targetModelKey;
+            currentModelKey = targetModelKey;
+        }
+
+        // استخراج إجابات الطالب الحرفية ووضعها في الحقل الفوري
+        let reconstructedAnswers = "";
+        if (record.answers && record.answers.length > 0) {
+            record.answers.forEach(ansObj => {
+                let match = ansObj.studentAns.match(/\(([^)]+)\)/);
+                if (match) {
+                    let arabicChar = match[1];
+                    if (arabicChar === 'أ') reconstructedAnswers += 'A';
+                    else if (arabicChar === 'ب') reconstructedAnswers += 'B';
+                    else if (arabicChar === 'ج') reconstructedAnswers += 'C';
+                    else if (arabicChar === 'د') reconstructedAnswers += 'D';
+                    else reconstructedAnswers += 'A';
+                }
+            });
+        }
+
+        if (reconstructedAnswers.length > 0) {
+            document.getElementById('quickPasteInput').value = reconstructedAnswers;
+            applyInstantPaste();
         }
     }
 
@@ -674,6 +706,7 @@
         if (modalId === 'alertModalGreen') {
             clearQuickPaste();
             document.getElementById('studentSearchInput').value = '';
+            document.getElementById('studentModelsGroup').style.display = 'none';
         }
     }
 
@@ -682,20 +715,17 @@
         const quickInputVal = document.getElementById('quickPasteInput').value.trim();
         const customModelName = modelsData[currentModelKey].name;
 
-        // 1. التحقق من اختيار اسم الطالب
         if (!studentName) {
             showModal('alertModalRed', '⚠️ تنبيه:<br>الرجاء اختيار اسم الطالب من القائمة أولاً.');
             return;
         }
 
-        // 2. التحقق من وجود إجابات مضافة في الحقل
         if (!quickInputVal || quickInputVal.length === 0) {
             showModal('alertModalRed', '⚠️ تنبيه خطأ في الإدخال:<br>لم تقم بإضافة أي إجابات للطالب في حقل الإدخال الفوري! يرجى كتابة أو لصق الإجابات أولاً.');
             return;
         }
 
         try {
-            // 3. فحص ما إذا كان الطالب قد أرسل لنفس النموذج مسبقاً
             const existingCheck = await db.collection("alkfaeat_results")
                 .where("name", "==", studentName)
                 .where("model_id", "==", customModelName)
@@ -745,7 +775,6 @@
 
             await db.collection("alkfaeat_results").add(recordData);
             
-            // إظهار نافذة النجاح الخضراء المنبثقة
             showModal('alertModalGreen', `✅ تم اعتماد درجة الطالب: <strong>${studentName}</strong><br>تحت اسم: <strong>${customModelName}</strong><br>الدرجة النهائية: <strong>${score} من 20 (${p}%)</strong><br><span style="font-size:0.85rem; color:#047857;">تم إرسال التفاصيل لوحة التحكم بنجاح.</span>`);
 
         } catch (error) {
